@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Domain Discovery - Seed Generation">
+    <meta name="author" content="Karanjeet Singh">
+
+    <title>Domain Discovery - Seed Generation</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="../vendor/morrisjs/morris.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; width: 100% !important;">
+            <div class="navbar-header" style="width: 95% !important;">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
+                    </div>
+                    <div class="col-lg-2 col-md-2">
+                        <form id="form-export-model" action="classify/download/" method="post">
+                            <button id="export-model" type="submit" class="btn btn-primary"
+                            style="float: right !important; display: block; margin-top: 4%;">Export Model</button>
+                        </form>
+                    </div>
+                    <div class="col-lg-2 col-md-2">
+                        <button type="button" class="btn btn-primary update-model"
+                    style="float: right !important; display: none; margin-top: 4%;">Update Model</button>
+                    </div>
+                    <div class="col-lg-2 col-md-2">
+                        <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
+                            <span id="model-accuracy-val">0.0</span></span>
+                    </div>
+                </div>
+            </div>
+            <!-- /.navbar-header -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li class="sidebar-search">
+                            <div class="input-group custom-search-form">
+                                <input id="search-qry" type="text" class="form-control" placeholder="Search...">
+                                <span class="input-group-btn">
+                                  <button id="search-bg" class="btn btn-default" type="button">
+                                      <i class="fa fa-search"></i>
+                                  </button>
+                                </span>
+                            </div>
+                            <!-- /input-group -->
+                        </li>
+                        <li>
+                            <a href="/explorer/"><i class="fa fa-dashboard fa-fw"></i> Build Model</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div id="loader-page-wrapper" style="display: none; position: relative; margin: 0 auto; width: 40%; padding-top: 10%;" >
+                <img src="../images/loading.gif" />
+            </div>
+            <form id="form-ann" name="form-ann">
+                <div id="search-page-wrapper">
+                </div>
+            </form>
+            <button type="button" class="btn btn-primary update-model"
+                    style="float: right !important; display: none">Update Model</button>
+        </div>
+        <br /> <br />
+        <!-- /#page-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="../vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../vendor/metisMenu/metisMenu.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <!--
+    <script src="../vendor/raphael/raphael.min.js"></script>
+    <script src="../vendor/morrisjs/morris.min.js"></script>
+    <script src="../data/morris-data.js"></script>
+  -->
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+      $('#search-bg').click(function (e) {
+          e.preventDefault();
+          $('#search-page-wrapper').css('display', 'none');
+          $('.update-model').css('display', 'none');
+          $('#loader-page-wrapper').css('display', 'block');
+          $.ajax({type: "GET",
+              url: "/search/" + $("#search-qry").val(),
+              //data: { query: $("#search-qry").val() },
+              success:function(result)
+              {
+                  var jdata =  JSON.parse(result);
+                  var content = '<br/>';
+                  var i = 1;
+
+                  // Building iframes
+                  for (i = 1; i <= jdata.length; i++) {
+                      if (i % 3 == 1) {
+                          content += '<div class="row">';
+                      }
+                      var marker = get_marker(jdata[i - 1]['label']);
+                      content += '<div class="col-lg-4 col-md-6">' +
+                          '<div id="page' + i + '-panel" class="panel panel-' + marker + '" style="height:350px">' +
+                          '<div id="page' + i + '-panel-heading" class="panel-heading">' +
+                          '</div>' +
+                          '<div class="search-result">' +
+                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" srcdoc="" sandbox></iframe>' +
+                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
+                          '<div class="row" style="text-align:center">' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>';
+
+                      if (i % 3 == 0) {
+                          content += '</div>';
+                      }
+                  }
+
+                  $('#search-page-wrapper')
+                      .html(content)
+                      .css('display', 'block');
+                  $('.update-model').css('display', 'block');
+
+                  // Adding Content
+                  for (i = 1; i <= jdata.length; i++) {
+                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
+                          '<br/> <b>URL:</b> ' + jdata[i - 1]['url'].slice(0, 35));
+                      $("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
+                  }
+
+                  $('#loader-page-wrapper').css('display', 'none');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
+
+      $('.update-model').click(function (e) {
+          e.preventDefault();
+          var form_data = $('#form-ann').serialize();
+          $.ajax({type: "POST",
+              url: "/explorer/classify/update/",
+              data: form_data, // Form data
+              success:function(result)
+              {
+                  alert('Model has been updated with accuracy: ' + result);
+                  $('#model-accuracy-val').html(result);
+                  $('#search-page-wrapper').css('display', 'none');
+                  $('.update-model').css('display', 'none');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
+
+      $('#export-model').click(function (e) {
+          e.preventDefault();
+          $.post("classify/exist/", function (data) {
+              if(data == '-1') {
+                  alert('No model exist!');
+              } else {
+                  $("#form-export-model").submit();
+              }
+          });
+      });
+
+    });
+
+    function mark_page(marker, index) {
+        $('#page' + index + '-panel')
+            .removeClass (function (index, className) {
+            return (className.match (/(^|\s)panel-\S+/g) || []).join(' '); });
+        if (marker == 'warning') {
+            $('#page' + index + '-panel').addClass('panel-yellow');
+        } else {
+            $('#page' + index + '-panel').addClass('panel-' + marker);
+        }
+        var mark_val = -1;
+        switch(marker) {
+            case 'danger':
+                mark_val = 2;
+                break;
+            case 'success':
+                mark_val = 1;
+                break;
+            case 'warning':
+                mark_val = 0;
+                break;
+            default:
+                mark_val = -1;
+        }
+        $('#page' + index + '-ann').val(mark_val);
+    }
+
+    function get_marker(label) {
+        var marker = 'default';
+        switch(label) {
+            case 2:
+                marker = 'danger';
+                break;
+            case 1:
+                marker = 'success';
+                break;
+            case 0:
+                marker = 'yellow';
+                break;
+            default:
+                marker = 'default';
+        }
+        return marker;
+    }
+    </script>
+
+</body>
+
+</html>
