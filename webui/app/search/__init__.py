@@ -19,6 +19,8 @@ def query_and_fetch(query, top_n=12):
         driver.get('https://api.duckduckgo.com/?q=' + query + '&kl=wt-wt')
     except:
         print('An error occurred while searching query: ' + query)
+        Fetcher.close_selenium_driver(driver)
+        Fetcher.search_driver = None
         bad_request = True
     finally:
         try:

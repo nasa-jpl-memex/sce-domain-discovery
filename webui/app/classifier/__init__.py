@@ -8,7 +8,7 @@ import os
 
 accuracy = 0.0
 splits = 2
-iteration = 3
+iteration = 1
 
 
 def load_vocab():
@@ -41,6 +41,11 @@ def update_model(annotations):
 
     print('No. of features: ' + str(len(features)) + ' and No. of labels: ' + str(len(labeled)))
 
+    clf.partial_fit(features, labeled, classes=np.unique(labeled))
+    predicted = clf.predict(features)
+    accuracy = (labeled == predicted).sum() / float(len(labeled))
+
+    '''
     for i in xrange(0, iteration):
         local_acc = 0.0
         skf = StratifiedKFold(n_splits=splits, shuffle=True)
@@ -56,6 +61,7 @@ def update_model(annotations):
             local_acc += (y_test == predicted).sum() / float(len(y_test))
         print("Iter " + str(i + 1) + " and Accuracy: " + str(local_acc / splits))
         accuracy = local_acc / splits
+    '''
     setattr(flask.current_app, 'clf', clf)
     return str(accuracy)
 
