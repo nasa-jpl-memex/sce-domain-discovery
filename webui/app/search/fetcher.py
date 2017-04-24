@@ -15,10 +15,11 @@ class Fetcher(object):
         if Fetcher.search_driver is not None:
             return Fetcher.search_driver
         else:
-            capabilities = DesiredCapabilities.CHROME
+            capabilities = DesiredCapabilities.FIREFOX
             capabilities['takesScreenShot'] = False
-            driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
-                                      desired_capabilities=capabilities)
+            driver = webdriver.Firefox(executable_path='/Users/ksingh/chromedriver',
+                                      capabilities=capabilities,
+                                      log_path='/Users/ksingh/chrome.logs')
             driver.implicitly_wait(2)
             Fetcher.search_driver = driver
             return Fetcher.search_driver
