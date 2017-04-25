@@ -17,9 +17,9 @@ class Fetcher(object):
         else:
             capabilities = DesiredCapabilities.FIREFOX
             capabilities['takesScreenShot'] = False
-            driver = webdriver.Firefox(executable_path='/Users/ksingh/chromedriver',
+            driver = webdriver.Firefox(executable_path='/data/projects/G-817549/standalone/tools/firefox/firefox',
                                       capabilities=capabilities,
-                                      log_path='/Users/ksingh/chrome.logs')
+                                      log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
             driver.implicitly_wait(2)
             Fetcher.search_driver = driver
             return Fetcher.search_driver

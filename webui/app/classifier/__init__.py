@@ -13,7 +13,7 @@ iteration = 1
 
 def load_vocab():
     """Load Vocabulary"""
-    with open("/Users/ksingh/git-workspace/seedexplorer/src/main/resources/data/keywords.txt", 'rb') as f:
+    with open("/data/projects/G-817549/polar/git-ws/dd-polar/seedexplorer/src/main/resources/data/keywords.txt", 'rb') as f:
         keywords_content = f.read()
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
     count_vect.fit_transform([keywords_content])
