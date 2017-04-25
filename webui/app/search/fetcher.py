@@ -18,18 +18,27 @@ class Fetcher(object):
         if Fetcher.search_driver is not None:
             return Fetcher.search_driver
         else:
-            capabilities = DesiredCapabilities.FIREFOX
+            #capabilities = DesiredCapabilities.FIREFOX
+            #capabilities['takesScreenShot'] = False
+            #binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
+            #driver = webdriver.Firefox(firefox_binary=binary,
+            #                           capabilities=capabilities,
+            #                           log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+            capabilities = DesiredCapabilities.PHANTOMJS
             capabilities['takesScreenShot'] = False
-            binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
-            driver = webdriver.Firefox(firefox_binary=binary,
-                                       capabilities=capabilities,
-                                       log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+            driver = webdriver.PhantomJS(executable_path='/data/projects/G-817549/standalone/tools/phantomjs-2.1.1/bin/phantomjs',
+            #driver = webdriver.PhantomJS(executable_path='/Users/ksingh/phantomjs-2.1.1-macosx/bin/phantomjs',
+                                         desired_capabilities=capabilities,
+                                         service_log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+                                         #service_log_path='/Users/ksingh/phantomjs.log')
+
+
+
             #capabilities = DesiredCapabilities.CHROME
             #capabilities['takesScreenShot'] = False
             #driver = webdriver.Chrome(executable_path='/Users/ksingh/chromedriver',
             #                          desired_capabilities=capabilities,
             #                          service_log_path='/Users/ksingh/chrome.log')
-            driver.implicitly_wait(5)
             Fetcher.search_driver = driver
             return Fetcher.search_driver
 
