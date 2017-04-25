@@ -29,21 +29,26 @@ def query_and_fetch(query, top_n=12):
                 result_size = len(results)
                 print('Result Size: ' + str(result_size))
                 while result_size > 0 and len(url_details) < top_n:
+                    results = results[:top_n]
+                    urls = []
                     for element in results:
                         new_url = element.get_attribute('href')
                         # TODO: Filter URLs if required
                         print(new_url)
-                        fetched_data = Fetcher.fetch(new_url)
-                        if not fetched_data[0] or len(fetched_data[0].strip()) == 0:
+                        urls.append(new_url)
+
+                    fetched_result = Fetcher.fetch_multiple(urls)
+
+                    for fetched_data in list(fetched_result.queue):
+                        if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                             continue
-                        #print('Adding content for URL: ' + new_url)
                         details = dict()
-                        details['url'] = new_url
-                        details['html'] = fetched_data[0]
-                        details['title'] = fetched_data[1]
-                        details['label'] = predict(fetched_data[2])
+                        details['url'] = fetched_data[0]
+                        details['html'] = fetched_data[1]
+                        details['title'] = fetched_data[2]
+                        details['label'] = predict(fetched_data[3])
                         url_details.append(details)
-                        url_text.append(fetched_data[2])
+                        url_text.append(fetched_data[3])
                         if len(url_details) == top_n:
                             break
 

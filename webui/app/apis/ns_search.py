@@ -11,5 +11,5 @@ class Search(Resource):
     @api.doc('search')
     def get(self, query):
         """Search Duck Duck Go"""
-        url_details = search.query_and_fetch(query, top_n=9)
+        url_details = search.query_and_fetch(query, top_n=12)
         return json.dumps(url_details)

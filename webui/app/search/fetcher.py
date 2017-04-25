@@ -3,6 +3,8 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
+import threading
+import Queue
 import re
 
 
@@ -22,7 +24,12 @@ class Fetcher(object):
             driver = webdriver.Firefox(firefox_binary=binary,
                                        capabilities=capabilities,
                                        log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            driver.implicitly_wait(2)
+            #capabilities = DesiredCapabilities.CHROME
+            #capabilities['takesScreenShot'] = False
+            #driver = webdriver.Chrome(executable_path='/Users/ksingh/chromedriver',
+            #                          desired_capabilities=capabilities,
+            #                          service_log_path='/Users/ksingh/chrome.log')
+            driver.implicitly_wait(5)
             Fetcher.search_driver = driver
             return Fetcher.search_driver
 
@@ -80,8 +87,37 @@ class Fetcher(object):
         return [html, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')]
 
     @staticmethod
+    def read_url(url, queue):
+        try:
+            res = urlopen(url)
+            data = res.read()
+            print('Fetched %s from %s' % (len(data), url))
+            if res.headers.getparam('charset').lower() != 'utf-8':
+                data = data.encode('utf-8')
+            soup = BeautifulSoup(data, 'html.parser')
+            print('Parsed %s from %s' % (len(data), url))
+            queue.put([url, data, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')])
+        except:
+            print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
+
+    @staticmethod
+    def parallel(urls):
+        result = Queue.Queue()
+        threads = [threading.Thread(target=Fetcher.read_url, args=(url, result)) for url in urls]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        return result
+
+    @staticmethod
+    def fetch_multiple(urls):
+        result = Fetcher.parallel(urls)
+        return result
+
+    @staticmethod
     def fetch(url):
-        result = ['','']
+        result = ['', '', '']
         try:
             result = Fetcher.plain(url)
         except:
