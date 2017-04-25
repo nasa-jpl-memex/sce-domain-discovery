@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
@@ -17,9 +18,10 @@ class Fetcher(object):
         else:
             capabilities = DesiredCapabilities.FIREFOX
             capabilities['takesScreenShot'] = False
-            driver = webdriver.Firefox(executable_path='/data/projects/G-817549/standalone/tools/firefox/firefox',
-                                      capabilities=capabilities,
-                                      log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+            binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
+            driver = webdriver.Firefox(firefox_binary=binary,
+                                       capabilities=capabilities,
+                                       log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
             driver.implicitly_wait(2)
             Fetcher.search_driver = driver
             return Fetcher.search_driver
