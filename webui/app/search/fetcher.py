@@ -18,19 +18,19 @@ class Fetcher(object):
         if Fetcher.search_driver is not None:
             return Fetcher.search_driver
         else:
-            #capabilities = DesiredCapabilities.FIREFOX
-            #capabilities['takesScreenShot'] = False
-            #binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
-            #driver = webdriver.Firefox(firefox_binary=binary,
-            #                           capabilities=capabilities,
-            #                           log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            capabilities = DesiredCapabilities.PHANTOMJS
+            capabilities = DesiredCapabilities.FIREFOX
             capabilities['takesScreenShot'] = False
-            driver = webdriver.PhantomJS(executable_path='/data/projects/G-817549/standalone/tools/phantomjs-2.1.1/bin/phantomjs',
+            binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
+            driver = webdriver.Firefox(firefox_binary=binary,
+                                       capabilities=capabilities,
+                                       log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+            #capabilities = DesiredCapabilities.PHANTOMJS
+            #capabilities['takesScreenShot'] = False
+            #driver = webdriver.PhantomJS(executable_path='/data/projects/G-817549/standalone/tools/phantomjs-2.1.1/bin/phantomjs',
             #driver = webdriver.PhantomJS(executable_path='/Users/ksingh/phantomjs-2.1.1-macosx/bin/phantomjs',
-                                         desired_capabilities=capabilities,
-                                         service_log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-                                         #service_log_path='/Users/ksingh/phantomjs.log')
+            #                             desired_capabilities=capabilities,
+                                         #service_log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
+            #                             service_log_path='/Users/ksingh/phantomjs.log')
 
 
 
@@ -110,18 +110,31 @@ class Fetcher(object):
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
 
     @staticmethod
-    def parallel(urls):
+    def is_alive(threads):
+        for t in threads:
+            if t.isAlive():
+                return True
+            else:
+                threads.remove(t)
+        return False
+
+    @staticmethod
+    def parallel(urls, top_n):
         result = Queue.Queue()
         threads = [threading.Thread(target=Fetcher.read_url, args=(url, result)) for url in urls]
         for t in threads:
+            t.daemon = True
             t.start()
-        for t in threads:
-            t.join()
-        return result
+        #for t in threads:
+        #    t.join()
+        data = []
+        while len(data) <= top_n and Fetcher.is_alive(threads):
+            data.append(result.get())
+        return data
 
     @staticmethod
-    def fetch_multiple(urls):
-        result = Fetcher.parallel(urls)
+    def fetch_multiple(urls, top_n):
+        result = Fetcher.parallel(urls, top_n)
         return result
 
     @staticmethod

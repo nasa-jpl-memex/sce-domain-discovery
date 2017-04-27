@@ -29,7 +29,6 @@ def query_and_fetch(query, top_n=12):
                 result_size = len(results)
                 print('Result Size: ' + str(result_size))
                 while result_size > 0 and len(url_details) < top_n:
-                    results = results[:top_n]
                     urls = []
                     for element in results:
                         new_url = element.get_attribute('href')
@@ -37,9 +36,9 @@ def query_and_fetch(query, top_n=12):
                         print(new_url)
                         urls.append(new_url)
 
-                    fetched_result = Fetcher.fetch_multiple(urls)
+                    fetched_result = Fetcher.fetch_multiple(urls, top_n)
 
-                    for fetched_data in list(fetched_result.queue):
+                    for fetched_data in fetched_result:
                         if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                             continue
                         details = dict()
