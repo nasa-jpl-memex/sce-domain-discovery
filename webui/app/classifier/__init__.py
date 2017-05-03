@@ -70,10 +70,10 @@ def update_model(annotations):
 def predict(txt):
     keywords = getattr(flask.current_app, 'keywords', None)
     if keywords is None:
-        return '-1'
+        return -1
     clf = getattr(flask.current_app, 'clf', None)
     if clf is None:
-        return '-1'
+        return -1
     count_vect = CountVectorizer(lowercase=True, stop_words='english', vocabulary=keywords.keys())
     features = count_vect.fit_transform([txt]).toarray().astype(np.float64)
     predicted = clf.predict(features)
@@ -91,5 +91,5 @@ def export_model():
 def check_model():
     clf = getattr(flask.current_app, 'clf', None)
     if clf is None:
-        return '-1'
-    return '0'
+        return -1
+    return 0
