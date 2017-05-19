@@ -18,34 +18,13 @@ class Fetcher(object):
         if Fetcher.search_driver is not None:
             return Fetcher.search_driver
         else:
-            capabilities = DesiredCapabilities.FIREFOX
-            capabilities['takesScreenShot'] = False
-            binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
-            driver = webdriver.Firefox(firefox_binary=binary,
-                                       capabilities=capabilities,
-                                       log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            #capabilities = DesiredCapabilities.PHANTOMJS
-            #capabilities['takesScreenShot'] = False
-            #driver = webdriver.PhantomJS(executable_path='/data/projects/G-817549/standalone/tools/phantomjs-2.1.1/bin/phantomjs',
-            #driver = webdriver.PhantomJS(executable_path='/Users/ksingh/phantomjs-2.1.1-macosx/bin/phantomjs',
-            #                             desired_capabilities=capabilities,
-                                         #service_log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            #                             service_log_path='/Users/ksingh/phantomjs.log')
-
-
-
-            #capabilities = DesiredCapabilities.CHROME
-            #capabilities['takesScreenShot'] = False
-            #driver = webdriver.Chrome(executable_path='/Users/ksingh/chromedriver',
-            #                          desired_capabilities=capabilities,
-            #                          service_log_path='/Users/ksingh/chrome.log')
-            Fetcher.search_driver = driver
+            Fetcher.search_driver = Fetcher.new_selenium_driver()
             return Fetcher.search_driver
 
     @staticmethod
     def new_selenium_driver(timeout=10):
         driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
-                                      desired_capabilities=DesiredCapabilities.CHROME)
+                                      desired_capabilities=DesiredCapabilities.FIREFOX)
         #driver.set_page_load_timeout(timeout)
         return driver
 
