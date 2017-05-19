@@ -1,0 +1,6 @@
+Flask==0.12
+flask_restplus==0.10.1
+numpy==1.12.1
+selenium==3.3.0
+beautifulsoup4==4.6.0
+scikit_learn==0.18.1
