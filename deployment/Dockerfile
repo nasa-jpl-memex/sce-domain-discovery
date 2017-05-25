@@ -24,7 +24,7 @@ RUN git clone https://bitbucket.org/sujen1412/domain-discovery.git
 
 RUN apt-get install -y python && \
     apt-get install -y python-setuptools python-dev build-essential && \
-    easy_install pip && \
+    easy_install pip
 
 RUN cd domain-discovery/webui && pip install -r requirements.txt
 
