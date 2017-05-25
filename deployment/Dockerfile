@@ -26,9 +26,9 @@ RUN apt-get install -y python && \
     apt-get install -y python-setuptools python-dev build-essential && \
     easy_install pip
 
-RUN cd domain-discovery/webui && pip install -r requirements.txt
-
 WORKDIR /projects/domain-discovery/webui
+RUN git pull --all && git checkout memex-dd
+RUN pip install -r requirements.txt
 
 CMD ["python", "run.py"]
 
