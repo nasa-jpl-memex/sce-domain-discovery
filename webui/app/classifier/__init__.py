@@ -96,5 +96,5 @@ def export_model():
 def check_model():
     clf = getattr(flask.current_app, 'clf', None)
     if clf is None:
-        return -1
-    return 0
+        return str(-1)
+    return str(0)
