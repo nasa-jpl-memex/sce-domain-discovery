@@ -5,11 +5,12 @@ from sklearn.externals import joblib
 import flask
 import numpy as np
 import os
+from flask import request, redirect, flash, url_for
+from werkzeug.utils import secure_filename
 
 accuracy = 0.0
 splits = 2
 iteration = 1
-
 
 def load_vocab():
     """Load Vocabulary"""
@@ -85,11 +86,45 @@ def predict(txt):
     print(predicted)
     return predicted[0]
 
+def import_model():
+    global accuracy
+    keywords = getattr(flask.current_app, 'keywords', None)
+    filename = 'model.pkl'
+
+    if keywords is None:
+        keywords = load_vocab()
+        clf = setattr(flask.current_app, 'keywords', keywords)
+    if 'file' not in request.files:
+        flash('No file part')
+        return '-1'
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return '-1'
+    if file:
+        # filename = secure_filename(file.filename)
+        file.save(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
+        # return redirect(url_for('uploaded_file', filename=filename))
+    else:
+        flash('An error occurred while uploading the file')
+        return '-1'
+
+    # clf = joblib.load(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
+    dict = joblib.load(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
+    accuracy = dict['Accuracy']
+    clf = dict['Model']
+    setattr(flask.current_app, 'clf', clf)
+
+    return str(accuracy)
+
 
 def export_model():
+    global accuracy
     clf = getattr(flask.current_app, 'clf', None)
     fname = 'model.pkl'
-    joblib.dump(clf, fname)
+    # joblib.dump(clf, fname)
+    dict = {'Accuracy': accuracy, 'Model': clf}
+    joblib.dump(dict, fname)
     return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
 
 

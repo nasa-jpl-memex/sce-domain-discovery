@@ -22,6 +22,11 @@ def build_model():
     return accuracy
 
 
+@mod_app.route('/classify/upload/', methods=['POST'])
+def upload_model():
+    return classifier.import_model()
+
+
 @mod_app.route('/classify/download/', methods=['POST'])
 def download_model():
     return classifier.export_model()
