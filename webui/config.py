@@ -20,3 +20,6 @@ CSRF_SESSION_KEY = "secretDD"
 
 # Secret key for signing cookies
 SECRET_KEY = "secretDD"
+
+# Path to the uploads
+UPLOAD_FOLDER = '..'

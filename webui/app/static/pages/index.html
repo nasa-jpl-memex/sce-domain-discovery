@@ -46,10 +46,18 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
                 </button>
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
                         <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
+                    </div>
+                    <div class="col-lg-2 col-md-2">
+                        <form id="form-import-model" class="form-inline" action="classify/upload/" method="post" enctype="multipart/form-data">
+                            <input id="browse-file" type="file" name="file" style="float: left !important; display: block; margin-top: 4%;" class="filestyle" data-icon="false" />
+                            <button id="import-model" type="submit" class="btn btn-primary"
+                            style="float: right !important; display: block; margin-top: 4%;">Import Model</button>
+                        </form>
                     </div>
                     <div class="col-lg-2 col-md-2">
                         <form id="form-export-model" action="classify/download/" method="post">
@@ -229,6 +237,28 @@
           });
       });
 
+      $('#import-model').click(function (e) {
+          e.preventDefault();
+          var form_data = new FormData();
+          form_data.append('file', $('input[type=file]')[0].files[0]);
+          $.ajax({type: "POST",
+              url: "/explorer/classify/upload/",
+              data: form_data, // Form data
+              processData: false,
+              contentType: false,
+              cache: false,
+              success:function(result)
+              {
+                  alert('Model has been imported with accuracy: ' + result);
+                  $('#model-accuracy-val').html(result);
+                  $('#search-page-wrapper').css('display', 'none');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
     });
 
     function mark_page(marker, index) {
