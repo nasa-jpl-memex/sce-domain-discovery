@@ -14,6 +14,17 @@ class Fetcher(object):
     search_driver = None
 
     @staticmethod
+    def cleantext(soup):
+        for script in soup(["script", "style"]):
+            script.extract()  # rip it out
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+        text=text.replace('\n',' ')
+        return text.encode('utf-8')
+
+    @staticmethod
     def get_selenium_driver(timeout=10):
         if Fetcher.search_driver is not None:
             return Fetcher.search_driver
@@ -72,7 +83,7 @@ class Fetcher(object):
         #end = html.find('</title>', start)
         #title = html[start:end]
         soup = BeautifulSoup(html, 'html.parser')
-        return [html, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')]
+        return [html, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)]
 
     @staticmethod
     def read_url(url, queue):
@@ -84,7 +95,7 @@ class Fetcher(object):
                 data = data.encode('utf-8')
             soup = BeautifulSoup(data, 'html.parser')
             print('Parsed %s from %s' % (len(data), url))
-            queue.put([url, data, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')])
+            queue.put([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])
         except:
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
 

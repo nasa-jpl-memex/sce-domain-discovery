@@ -1,12 +1,10 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import StratifiedKFold
-from sklearn import linear_model
+from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer
 from sklearn.externals import joblib
 import flask
 import numpy as np
 import os
-from flask import request, redirect, flash, url_for
-from werkzeug.utils import secure_filename
+from flask import request, flash
+from sklearn.neural_network import MLPClassifier
 
 accuracy = 0.0
 splits = 2
@@ -30,70 +28,75 @@ def load_vocab():
 
 def update_model(annotations):
     global accuracy, splits, iteration
-    clf = None
+
     keywords = getattr(flask.current_app, 'keywords', None)
-    if keywords is None:
-        keywords = load_vocab()
-        clf = setattr(flask.current_app, 'keywords', keywords)
-        clf = linear_model.SGDClassifier()
-    if clf is None:
-        clf = getattr(flask.current_app, 'clf', None)
     url_text = getattr(flask.current_app, 'url_text', None)
-    if url_text is None or clf is None:
+
+    clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
+    count_vect = CountVectorizer(lowercase=True, stop_words='english')
+    tfidftransformer = TfidfTransformer()
+
+
+    if url_text is None:
         print('An error occurred while accessing the application context variables')
         return '-1'
-    count_vect = CountVectorizer(lowercase=True, stop_words='english', vocabulary=keywords.keys())
-    features = count_vect.fit_transform(url_text).toarray().astype(np.float64)
+
     labeled = np.array(annotations)
+    model=getattr(flask.current_app, 'model', None)
+
+
+    if model is not None:
+        # add the old docs to the new
+        prev_url_text=model['url_text']
+        prev_labeled=model['labeled']
+        url_text=np.append(url_text,prev_url_text,axis=0)
+        labeled=np.append(labeled,prev_labeled,axis=0)
+
+
+
+    features = count_vect.fit_transform(url_text)
+    features=tfidftransformer.fit_transform(features).toarray().astype(np.float64)
 
     print('No. of features: ' + str(len(features)) + ' and No. of labels: ' + str(len(labeled)))
 
-    clf.partial_fit(features, labeled, classes=np.unique(labeled))
+    print np.unique(labeled)
+    clf.fit(features, labeled,)
+
+    # save the model
+    model={'url_text':url_text,'labeled':labeled,'countvectorizer':count_vect,'tfidftransformer':tfidftransformer,'clf':clf}
+    setattr(flask.current_app, 'model', model)
+
     predicted = clf.predict(features)
     accuracy = (labeled == predicted).sum() / float(len(labeled))
 
-    '''
-    for i in xrange(0, iteration):
-        local_acc = 0.0
-        skf = StratifiedKFold(n_splits=splits, shuffle=True)
-        skf.get_n_splits(features, labeled)
-        for train_index, test_index in skf.split(features, labeled):
-            # print("TRAIN:", len(train_index), "TEST:", len(test_index))
-            X_train, X_test = features[train_index], features[test_index]
-            y_train, y_test = labeled[train_index], labeled[test_index]
-
-            # print("X Train:", X_train, "Y Train:", y_train)
-            clf.partial_fit(X_train, y_train, classes=np.unique(labeled))
-            predicted = clf.predict(X_test)
-            local_acc += (y_test == predicted).sum() / float(len(y_test))
-        print("Iter " + str(i + 1) + " and Accuracy: " + str(local_acc / splits))
-        accuracy = local_acc / splits
-    '''
-    setattr(flask.current_app, 'clf', clf)
     return str(accuracy)
 
 
 def predict(txt):
-    keywords = getattr(flask.current_app, 'keywords', None)
-    if keywords is None:
+
+
+    model = getattr(flask.current_app, 'model', None)
+
+    if model is None:
         return -1
-    clf = getattr(flask.current_app, 'clf', None)
-    if clf is None:
-        return -1
-    count_vect = CountVectorizer(lowercase=True, stop_words='english', vocabulary=keywords.keys())
-    features = count_vect.fit_transform([txt]).toarray().astype(np.float64)
+
+    count_vect = model['countvectorizer']
+    tfidftransformer = model['tfidftransformer']
+    clf=model['clf']
+
+    features = count_vect.transform([txt])
+    features=tfidftransformer.transform(features).toarray().astype(np.float64)
+
     predicted = clf.predict(features)
     print(predicted)
     return predicted[0]
 
 def import_model():
     global accuracy
-    keywords = getattr(flask.current_app, 'keywords', None)
+    print 'importing'
     filename = 'model.pkl'
 
-    if keywords is None:
-        keywords = load_vocab()
-        clf = setattr(flask.current_app, 'keywords', keywords)
+
     if 'file' not in request.files:
         flash('No file part')
         return '-1'
@@ -109,27 +112,33 @@ def import_model():
         flash('An error occurred while uploading the file')
         return '-1'
 
-    # clf = joblib.load(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
-    dict = joblib.load(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
-    accuracy = dict['Accuracy']
-    clf = dict['Model']
-    setattr(flask.current_app, 'clf', clf)
+    model = joblib.load(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
+
+    accuracy = model['accuracy']
+
+    setattr(flask.current_app, 'model', model)
 
     return str(accuracy)
 
 
 def export_model():
     global accuracy
-    clf = getattr(flask.current_app, 'clf', None)
+    model = getattr(flask.current_app, 'model', None)
+
+    if model is None:
+        return -1
+
+    model['accuracy']=accuracy
+
     fname = 'model.pkl'
-    # joblib.dump(clf, fname)
-    dict = {'Accuracy': accuracy, 'Model': clf}
-    joblib.dump(dict, fname)
+
+    joblib.dump(model, fname)
+
     return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
 
 
 def check_model():
-    clf = getattr(flask.current_app, 'clf', None)
-    if clf is None:
+    model = getattr(flask.current_app, 'model', None)
+    if model is None:
         return str(-1)
     return str(0)

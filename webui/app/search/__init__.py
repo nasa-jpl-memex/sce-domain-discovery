@@ -1,6 +1,7 @@
-from app.search.fetcher import Fetcher
+from fetcher import Fetcher
 from app.classifier import predict
 import flask
+import traceback
 
 url_details = []
 url_text = []
@@ -17,11 +18,14 @@ def query_and_fetch(query, top_n=12):
     try:
         driver = Fetcher.get_selenium_driver()
         driver.get('https://api.duckduckgo.com/?q=' + query + '&kl=wt-wt')
+
     except:
         print('An error occurred while searching query: ' + query)
+        print traceback.format_exc()
         Fetcher.close_selenium_driver(driver)
         Fetcher.search_driver = None
         bad_request = True
+
     finally:
         try:
             if not bad_request:
