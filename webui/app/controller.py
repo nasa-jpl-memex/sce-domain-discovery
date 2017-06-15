@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory
 from app import classifier
+import os
 
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer')
@@ -9,6 +10,11 @@ mod_app = Blueprint('application', __name__, url_prefix='/explorer')
 @mod_app.route('/')
 def index():
     return send_from_directory('static/pages', 'index.html')
+
+
+@mod_app.route('/classify/createnew/', methods=['GET'])
+def create_new_model():
+    return classifier.clear_model()
 
 
 # POST Requests

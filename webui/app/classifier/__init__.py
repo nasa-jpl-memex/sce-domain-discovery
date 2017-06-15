@@ -26,16 +26,23 @@ def load_vocab():
     return keywords
 
 
+def clear_model():
+    print('clear_model')
+    fname = 'model.pkl'
+    if os.path.isfile(fname):
+        os.remove(fname)
+    setattr(flask.current_app, 'model', None)
+    return '0'
+
+
 def update_model(annotations):
     global accuracy, splits, iteration
 
-    keywords = getattr(flask.current_app, 'keywords', None)
     url_text = getattr(flask.current_app, 'url_text', None)
 
     clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
     tfidftransformer = TfidfTransformer()
-
 
     if url_text is None:
         print('An error occurred while accessing the application context variables')
@@ -44,15 +51,12 @@ def update_model(annotations):
     labeled = np.array(annotations)
     model=getattr(flask.current_app, 'model', None)
 
-
     if model is not None:
         # add the old docs to the new
         prev_url_text=model['url_text']
         prev_labeled=model['labeled']
         url_text=np.append(url_text,prev_url_text,axis=0)
         labeled=np.append(labeled,prev_labeled,axis=0)
-
-
 
     features = count_vect.fit_transform(url_text)
     features=tfidftransformer.fit_transform(features).toarray().astype(np.float64)
@@ -68,6 +72,9 @@ def update_model(annotations):
 
     predicted = clf.predict(features)
     accuracy = (labeled == predicted).sum() / float(len(labeled))
+
+    fname = 'model.pkl'
+    joblib.dump(model, fname)
 
     return str(accuracy)
 
@@ -131,7 +138,6 @@ def export_model():
     model['accuracy']=accuracy
 
     fname = 'model.pkl'
-
     joblib.dump(model, fname)
 
     return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
