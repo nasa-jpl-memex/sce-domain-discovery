@@ -137,74 +137,13 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
-      $('#search-bg').click(function (e) {
-          e.preventDefault();
-          $('#search-page-wrapper').css('display', 'none');
-          $('.update-model').css('display', 'none');
-          $('#loader-page-wrapper').css('display', 'block');
-          $.ajax({type: "GET",
-              url: "/search/" + $("#search-qry").val(),
-              //data: { query: $("#search-qry").val() },
-              success:function(result)
-              {
-                  var jdata =  JSON.parse(result);
-                  var content = '<br/>';
-                  var i = 1;
-
-                  // Building iframes
-                  for (i = 1; i <= jdata.length; i++) {
-                      if (i % 3 == 1) {
-                          content += '<div class="row">';
-                      }
-                      var marker = get_marker(jdata[i - 1]['label']);
-                      content += '<div class="col-lg-4 col-md-6">' +
-                          '<div id="page' + i + '-panel" class="panel panel-' + marker + '" style="height:350px">' +
-                          '<div id="page' + i + '-panel-heading" class="panel-heading">' +
-                          '</div>' +
-                          '<div class="search-result">' +
-                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" src="" sandbox></iframe>' +
-                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
-                          '<div class="row" style="text-align:center">' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
-                          '</div>' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
-                          '</div>' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>';
-
-                      if (i % 3 == 0) {
-                          content += '</div>';
-                      }
-                  }
-
-                  $('#search-page-wrapper')
-                      .html(content)
-                      .css('display', 'block');
-                  $('.update-model').css('display', 'block');
-
-                  // Adding Content
-                  for (i = 1; i <= jdata.length; i++) {
-                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
-                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'] +'</a>');
-                      //$("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
-                      $("#page" + i + "-frame").attr("src", jdata[i - 1]['url']);
-                  }
-
-                  $('#loader-page-wrapper').css('display', 'none');
-              },
-              error:function(result)
-              {
-                  alert('error');
-              }
-          });
+      $('#search-bg').click(function(e){ search_results(e)});
+      $('#search-qry').keypress(function(e) {
+       if (e.keyCode == 13) {
+        search_results(e);
+       }
       });
+
 
       $('#create-new').click(function (e) {
           e.preventDefault();
@@ -267,6 +206,75 @@
           });
       });
     });
+
+    function search_results(e) {
+        e.preventDefault();
+          $('#search-page-wrapper').css('display', 'none');
+          $('.update-model').css('display', 'none');
+          $('#loader-page-wrapper').css('display', 'block');
+          $.ajax({type: "GET",
+              url: "/search/" + $("#search-qry").val(),
+              //data: { query: $("#search-qry").val() },
+              success:function(result)
+              {
+                  var jdata =  JSON.parse(result);
+                  var content = '<br/>';
+                  var i = 1;
+
+                  // Building iframes
+                  for (i = 1; i <= jdata.length; i++) {
+                      if (i % 3 == 1) {
+                          content += '<div class="row">';
+                      }
+                      var marker = get_marker(jdata[i - 1]['label']);
+                      content += '<div class="col-lg-4 col-md-6">' +
+                          '<div id="page' + i + '-panel" class="panel panel-' + marker + '" style="height:350px">' +
+                          '<div id="page' + i + '-panel-heading" class="panel-heading">' +
+                          '</div>' +
+                          '<div class="search-result">' +
+                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" src="" sandbox></iframe>' +
+                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
+                          '<div class="row" style="text-align:center">' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>';
+
+                      if (i % 3 == 0) {
+                          content += '</div>';
+                      }
+                  }
+
+                  $('#search-page-wrapper')
+                      .html(content)
+                      .css('display', 'block');
+                  $('.update-model').css('display', 'block');
+
+                  // Adding Content
+                  for (i = 1; i <= jdata.length; i++) {
+                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
+                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'].slice(0,35) +'</a>');
+                      //$("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
+                      $("#page" + i + "-frame").attr("src", jdata[i - 1]['url']);
+                  }
+
+                  $('#loader-page-wrapper').css('display', 'none');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+    }
 
     function mark_page(marker, index) {
         $('#page' + index + '-panel')
