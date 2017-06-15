@@ -46,7 +46,6 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
                 </button>
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
@@ -69,10 +68,10 @@
                         <button type="button" class="btn btn-primary update-model"
                     style="float: right !important; display: none; margin-top: 4%;">Update Model</button>
                     </div>
-                    <div class="col-lg-2 col-md-2">
+                    <!--<div class="col-lg-2 col-md-2">
                         <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
                             <span id="model-accuracy-val">0.0</span></span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <!-- /.navbar-header -->
@@ -92,7 +91,7 @@
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="/explorer/"><i class="fa fa-dashboard fa-fw"></i> Build New Model</a>
+                            <a id="create-new" href="classify/createnew/"><i class="fa fa-dashboard fa-fw"></i> Create a New Model</a>
                         </li>
                     </ul>
                 </div>
@@ -207,6 +206,13 @@
           });
       });
 
+      $('#create-new').click(function (e) {
+          e.preventDefault();
+          $.get("classify/createnew/", function (data) {
+              alert("A new model has been created!");
+          });
+      });
+
       $('.update-model').click(function (e) {
           e.preventDefault();
           var form_data = $('#form-ann').serialize();
@@ -215,8 +221,8 @@
               data: form_data, // Form data
               success:function(result)
               {
-                  alert('Model has been updated with accuracy: ' + result);
-                  $('#model-accuracy-val').html(result);
+                  //alert('Model has been updated with accuracy: ' + result);
+                  //$('#model-accuracy-val').html(result);
                   $('#search-page-wrapper').css('display', 'none');
                   $('.update-model').css('display', 'none');
               },
@@ -250,8 +256,8 @@
               cache: false,
               success:function(result)
               {
-                  alert('Model has been imported with accuracy: ' + result);
-                  $('#model-accuracy-val').html(result);
+                  //alert('Model has been imported with accuracy: ' + result);
+                  //$('#model-accuracy-val').html(result);
                   $('#search-page-wrapper').css('display', 'none');
               },
               error:function(result)
