@@ -163,7 +163,7 @@
                           '<div id="page' + i + '-panel-heading" class="panel-heading">' +
                           '</div>' +
                           '<div class="search-result">' +
-                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" srcdoc="" sandbox></iframe>' +
+                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" src="" sandbox></iframe>' +
                           '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
                           '<div class="row" style="text-align:center">' +
                           '<div class="col-lg-4">' +
@@ -193,8 +193,9 @@
                   // Adding Content
                   for (i = 1; i <= jdata.length; i++) {
                       $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
-                          '<br/> <b>URL:</b> ' + jdata[i - 1]['url'].slice(0, 35));
-                      $("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
+                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'] +'</a>');
+                      //$("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
+                      $("#page" + i + "-frame").attr("src", jdata[i - 1]['url']);
                   }
 
                   $('#loader-page-wrapper').css('display', 'none');
