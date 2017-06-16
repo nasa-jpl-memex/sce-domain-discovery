@@ -52,19 +52,6 @@
                         <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
                     </div>
                     <div class="col-lg-2 col-md-2">
-                        <form id="form-import-model" class="form-inline" action="classify/upload/" method="post" enctype="multipart/form-data">
-                            <input id="browse-file" type="file" name="file" style="float: left !important; display: block; margin-top: 4%;" class="filestyle" data-icon="false" />
-                            <button id="import-model" type="submit" class="btn btn-primary"
-                            style="float: right !important; display: block; margin-top: 4%;">Import Model</button>
-                        </form>
-                    </div>
-                    <div class="col-lg-2 col-md-2">
-                        <form id="form-export-model" action="classify/download/" method="post">
-                            <button id="export-model" type="submit" class="btn btn-primary"
-                            style="float: right !important; display: block; margin-top: 4%;">Export Model</button>
-                        </form>
-                    </div>
-                    <div class="col-lg-2 col-md-2">
                         <button type="button" class="btn btn-primary update-model"
                     style="float: right !important; display: none; margin-top: 4%;">Update Model</button>
                     </div>
@@ -91,7 +78,14 @@
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a id="create-new" href="classify/createnew/"><i class="fa fa-dashboard fa-fw"></i> Create a New Model</a>
+                            <a id="create-new" href="classify/createnew/"><i class="fa fa-dashboard fa-fw"></i> Create New Model</a>
+                        </li>
+                        <li>
+                            <a id="browse-file" href="classify/upload/"><i class="fa fa-cloud-upload fa-fw"></i> Import Model</a>
+                            <input id="import-model" type="file" name="file" style="display: none" />
+                        </li>
+                        <li>
+                            <a id="export-model" href="classify/download/"><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
                         </li>
                     </ul>
                 </div>
@@ -184,7 +178,12 @@
           });
       });
 
-      $('#import-model').click(function (e) {
+      $('#browse-file').click(function (e) {
+          e.preventDefault();
+          $('#import-model').trigger("click");
+      });
+
+      $('#import-model').change(function (e) {
           e.preventDefault();
           var form_data = new FormData();
           form_data.append('file', $('input[type=file]')[0].files[0]);
