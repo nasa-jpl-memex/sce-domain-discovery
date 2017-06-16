@@ -27,7 +27,14 @@ class Fetcher(object):
     @staticmethod
     def get_selenium_driver(timeout=10):
         if Fetcher.search_driver is not None:
-            return Fetcher.search_driver
+            driver = Fetcher.search_driver
+            try:
+                driver.get("http://www.example.com/")
+                return driver
+            except Exception as e:
+                print('Selenium driver seems to have crashed, creating a new one {}'.format(str(e)))
+                return Fetcher.new_selenium_driver()
+
         else:
             Fetcher.search_driver = Fetcher.new_selenium_driver()
             return Fetcher.search_driver
