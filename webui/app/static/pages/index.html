@@ -161,6 +161,7 @@
               success:function(result)
               {
                   //alert('Model has been updated with accuracy: ' + result);
+                  alert('The model has been updated!');
                   //$('#model-accuracy-val').html(result);
                   $('#search-page-wrapper').css('display', 'none');
                   $('.update-model').css('display', 'none');
@@ -176,7 +177,7 @@
           e.preventDefault();
           $.post("classify/exist/", function (data) {
               if(data == '-1') {
-                  alert('No model exist!');
+                  alert('No model exists!');
               } else {
                   $("#form-export-model").submit();
               }
@@ -196,6 +197,7 @@
               success:function(result)
               {
                   //alert('Model has been imported with accuracy: ' + result);
+                  alert('A new model has been imported!');
                   //$('#model-accuracy-val').html(result);
                   $('#search-page-wrapper').css('display', 'none');
               },
