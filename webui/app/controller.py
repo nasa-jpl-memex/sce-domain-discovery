@@ -11,7 +11,6 @@ mod_app = Blueprint('application', __name__, url_prefix='/explorer')
 def index():
     return send_from_directory('static/pages', 'index.html')
 
-
 @mod_app.route('/classify/createnew/', methods=['GET'])
 def create_new_model():
     return classifier.clear_model()

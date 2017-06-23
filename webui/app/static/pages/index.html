@@ -48,12 +48,33 @@
                     <span class="icon-bar"></span>
                 </button>
                 <div class="row">
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-4 col-md-4">
                         <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
                     </div>
-                    <div class="col-lg-2 col-md-2">
+                    <div class="col-lg-4 col-md-4">
+                        <!--<span id="model-metrics" style="display: none; margin-top: 8%;">
+                            <span id="model-metrics-val">&nbsp;</span>-->
+                        <div class="row" style="text-align: center;">
+                            <div class="col-lg-4" style="margin-top: 10px">
+                                <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
+                                &nbsp;<span id="hr_metric" style="font-size:16px">0</span>
+                            </div>
+                            <div class="col-lg-4" style="margin-top: 10px">
+                                <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
+                                &nbsp;<span id="r_metric" style="font-size:16px">0</span>
+                            </div>
+                            <div class="col-lg-4" style="margin-top: 10px">
+                                <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
+                                &nbsp;<span id="nr_metric" style="font-size:16px">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2" style="text-align: center;">
+                        <button type="button" data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" class="btn btn-info btn-circle" onclick="return false;" style="margin-top: 10px"><i class="fa fa-question"></i></button>
+                    </div>
+                     <div class="col-lg-2 col-md-2">
                         <button type="button" class="btn btn-primary update-model"
-                    style="float: right !important; display: none; margin-top: 4%;">Update Model</button>
+                    style="float: right !important; display: block; margin-top: 4%;">Update Model</button>
                     </div>
                     <!--<div class="col-lg-2 col-md-2">
                         <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
@@ -85,9 +106,17 @@
                             <input id="import-model" type="file" name="file" style="display: none" />
                         </li>
                         <li>
-                            <a id="export-model" href="classify/download/"><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
+                            <form id="form-export-model" action="classify/download/" method="post">
+                                <button id="export-model-button" type="submit" class="btn btn-primary"
+                            style="float: right !important; display: none; margin-top: 4%;">Export Model</button>
+                            </form>
+                            <a id="export-model"><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
                         </li>
                     </ul>
+                    <!--<form id="form-export-model" action="classify/download/" method="post">
+                            <button id="export-model" type="submit" class="btn btn-primary"
+                            style="float: right !important; display: block; margin-top: 4%;">Export Model</button>
+                    </form>-->
                 </div>
                 <!-- /.sidebar-collapse -->
             </div>
@@ -130,7 +159,16 @@
     <script src="../dist/js/sb-admin-2.js"></script>
 
     <script type="text/javascript">
-    $(document).ready(function(){
+    $(document).ready(function() {
+
+      $.post("classify/exist/", function (data) {
+        if(data != '-1') {
+          update_metrics(data);
+        }
+      });
+
+      $('[data-toggle="tooltip"]').tooltip();
+
       $('#search-bg').click(function(e){ search_results(e)});
       $('#search-qry').keypress(function(e) {
        if (e.keyCode == 13) {
@@ -142,7 +180,14 @@
       $('#create-new').click(function (e) {
           e.preventDefault();
           $.get("classify/createnew/", function (data) {
-              alert("A new model has been created!");
+            alert("A new model has been created!");
+            $('#search-page-wrapper').css('display', 'none');
+            $('#search-qry').val('');
+
+            $('#hr_metric').html(0);
+            $('#r_metric').html(0);
+            $('#nr_metric').html(0);
+            location.reload();
           });
       });
 
@@ -157,6 +202,10 @@
                   //alert('Model has been updated with accuracy: ' + result);
                   alert('The model has been updated!');
                   //$('#model-accuracy-val').html(result);
+                  //$('#model-metrics').css('display', 'block');
+
+                  update_metrics(result);
+
                   $('#search-page-wrapper').css('display', 'none');
                   $('.update-model').css('display', 'none');
               },
@@ -171,7 +220,7 @@
           e.preventDefault();
           $.post("classify/exist/", function (data) {
               if(data == '-1') {
-                  alert('No model exists!');
+                  alert('No model exist!');
               } else {
                   $("#form-export-model").submit();
               }
@@ -197,8 +246,9 @@
               {
                   //alert('Model has been imported with accuracy: ' + result);
                   alert('A new model has been imported!');
-                  //$('#model-accuracy-val').html(result);
                   $('#search-page-wrapper').css('display', 'none');
+
+                  update_metrics(result);
               },
               error:function(result)
               {
@@ -222,6 +272,8 @@
                   var content = '<br/>';
                   var i = 1;
 
+                  var default_label = 0; // By default, not relevant!
+
                   // Building iframes
                   for (i = 1; i <= jdata.length; i++) {
                       if (i % 3 == 1) {
@@ -234,7 +286,7 @@
                           '</div>' +
                           '<div class="search-result">' +
                           '<iframe id="page' + i + '-frame" width="100%" style="height:250px" src="" sandbox></iframe>' +
-                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
+                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + (jdata[i - 1]['label'] < 0 ? default_label : jdata[i - 1]['label']) + '" />' +
                           '<div class="row" style="text-align:center">' +
                           '<div class="col-lg-4">' +
                           '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
@@ -286,7 +338,7 @@
         } else {
             $('#page' + index + '-panel').addClass('panel-' + marker);
         }
-        var mark_val = -1;
+        var mark_val = 0; // By default, not relevant
         switch(marker) {
             case 'danger':
                 mark_val = 2;
@@ -298,7 +350,7 @@
                 mark_val = 0;
                 break;
             default:
-                mark_val = -1;
+                mark_val = 0;
         }
         $('#page' + index + '-ann').val(mark_val);
     }
@@ -316,9 +368,17 @@
                 marker = 'yellow';
                 break;
             default:
-                marker = 'default';
+                marker = 'yellow';
         }
         return marker;
+    }
+
+    function update_metrics(data) {
+      var json_data = JSON.parse(data);
+
+      $('#hr_metric').html(json_data["2"]);
+      $('#r_metric').html(json_data["1"]);
+      $('#nr_metric').html(json_data["0"]);
     }
     </script>
 

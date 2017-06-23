@@ -3,6 +3,7 @@ from sklearn.externals import joblib
 import flask
 import numpy as np
 import os
+import json
 from flask import request, flash
 from sklearn.neural_network import MLPClassifier
 
@@ -76,7 +77,18 @@ def update_model(annotations):
     fname = 'model.pkl'
     joblib.dump(model, fname)
 
-    return str(accuracy)
+    dictionary = get_metrics(model)
+    json_dictionary = json.dumps(dictionary)
+
+    #return str(accuracy)
+    return json_dictionary
+
+
+def get_metrics(model):
+    unique, counts = np.unique(model['labeled'], return_counts=True)
+    dictionary = dict(zip(unique, counts))
+
+    return dictionary
 
 
 def predict(txt):
@@ -125,7 +137,11 @@ def import_model():
 
     setattr(flask.current_app, 'model', model)
 
-    return str(accuracy)
+    dictionary = get_metrics(model)
+    json_dictionary = json.dumps(dictionary)
+
+    # return str(accuracy)
+    return json_dictionary
 
 
 def export_model():
@@ -147,4 +163,9 @@ def check_model():
     model = getattr(flask.current_app, 'model', None)
     if model is None:
         return str(-1)
-    return str(0)
+
+    dictionary = get_metrics(model)
+    json_dictionary = json.dumps(dictionary)
+
+    # return str(0)
+    return json_dictionary
