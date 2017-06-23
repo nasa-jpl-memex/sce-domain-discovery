@@ -55,26 +55,39 @@
                         <!--<span id="model-metrics" style="display: none; margin-top: 8%;">
                             <span id="model-metrics-val">&nbsp;</span>-->
                         <div class="row" style="text-align: center;">
-                            <div class="col-lg-4" style="margin-top: 10px">
+                            <div class="col-lg-6" style="margin-top: 10px; text-align:right;">
+                                <span data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" style="font-size:16px">You've marked:&nbsp;</span>
+                            </div>
+                            <div class="col-lg-6" style="margin-top: 10px; text-align:left;">
+                                <span id="hr_metric" style="font-size:16px">0</span>&nbsp;
                                 <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
-                                &nbsp;<span id="hr_metric" style="font-size:16px">0</span>
-                            </div>
-                            <div class="col-lg-4" style="margin-top: 10px">
+                                &nbsp;
+                                <span id="r_metric" style="font-size:16px">0</span>&nbsp;
                                 <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
-                                &nbsp;<span id="r_metric" style="font-size:16px">0</span>
-                            </div>
-                            <div class="col-lg-4" style="margin-top: 10px">
+                                &nbsp;
+                                <span id="nr_metric" style="font-size:16px">0</span>&nbsp;
                                 <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
-                                &nbsp;<span id="nr_metric" style="font-size:16px">0</span>
                             </div>
+                            <!--<div class="col-lg-2" style="margin-top: 10px">
+                                <span id="hr_metric" style="font-size:16px">0</span>&nbsp;
+                                <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
+                            </div>
+                            <div class="col-lg-2" style="margin-top: 10px">
+                                <span id="r_metric" style="font-size:16px">0</span>&nbsp;
+                                <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
+                            </div>
+                            <div class="col-lg-2" style="margin-top: 10px">
+                                <span id="nr_metric" style="font-size:16px">0</span>&nbsp;
+                                <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
+                            </div>-->
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-2" style="text-align: center;">
+                    <!--<div class="col-lg-2 col-md-2" style="text-align: center;">
                         <button type="button" data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" class="btn btn-info btn-circle" onclick="return false;" style="margin-top: 10px"><i class="fa fa-question"></i></button>
-                    </div>
-                     <div class="col-lg-2 col-md-2">
+                    </div>-->
+                     <div class="col-lg-4 col-md-4">
                         <button type="button" class="btn btn-primary update-model"
-                    style="float: right !important; display: block; margin-top: 4%;">Update Model</button>
+                    style="float: right !important; display: block; margin-top: 10px;">Update Model</button>
                     </div>
                     <!--<div class="col-lg-2 col-md-2">
                         <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
