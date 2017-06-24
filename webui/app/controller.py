@@ -65,4 +65,4 @@ def force_kill_crawl():
 
 @mod_app.route('/cmd/seed/upload/', methods=['POST'])
 def upload_seed():
-    return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request).text
+    return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request.get_data()).text
