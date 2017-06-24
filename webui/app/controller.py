@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory
 from app import classifier
+import requests
 import os
 
 # Define Blueprint(s)
@@ -40,3 +41,28 @@ def download_model():
 @mod_app.route('/classify/exist/', methods=['POST'])
 def check_model():
     return classifier.check_model()
+
+
+@mod_app.route('/cmd/crawler/exist/', methods=['POST'])
+def check_crawl_exists():
+    return requests.post("http://sparkler:6000/cmd/crawler/exist/")
+
+
+@mod_app.route('/cmd/crawler/crawl/', methods=['POST'])
+def start_crawl():
+    return requests.post("http://sparkler:6000/cmd/crawler/crawl/")
+
+
+@mod_app.route('/cmd/crawler/int/', methods=['POST'])
+def kill_crawl_gracefully():
+    return requests.post("http://sparkler:6000/cmd/crawler/int/")
+
+
+@mod_app.route('/cmd/crawler/kill/', methods=['POST'])
+def force_kill_crawl():
+    return requests.post("http://sparkler:6000/cmd/crawler/kill/")
+
+
+@mod_app.route('/cmd/seed/upload/', methods=['POST'])
+def upload_seed():
+    return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request)

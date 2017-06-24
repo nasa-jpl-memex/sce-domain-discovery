@@ -106,7 +106,7 @@
                         </li>
                         <li>
                             <a id="browse-seed"><i class="fa fa-upload fa-fw"></i> Import Seed</a>
-                            <form id="form-import-seed" action="http://0.0.0.0:6000/cmd/seed/upload/" enctype="multipart/form-data" method="post">
+                            <form id="form-import-seed" action="/explorer/cmd/seed/upload/" enctype="multipart/form-data" method="post">
                                 <input id="import-seed" type="file" name="seed" style="display: none" />
                             </form>
                         </li>
@@ -232,11 +232,11 @@
 
       $('#start-crawler').click(function (e) {
           e.preventDefault();
-          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
               if(data != 0) {
                   alert('There is already a crawl job running!');
               } else {
-                $.post("http://0.0.0.0:6000/cmd/crawler/crawl/", function (data) {
+                $.post("/explorer/cmd/crawler/crawl/", function (data) {
                   if (data == 0) {
                     alert("The crawl job has been started!");
                   } else {
@@ -249,11 +249,11 @@
 
       $('#stop-crawler').click(function (e) {
           e.preventDefault();
-          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
               if(data == 0) {
                   alert('There is no crawl job running!');
               } else {
-                $.post("http://0.0.0.0:6000/cmd/crawler/int/", function (data) {
+                $.post("/explorer/cmd/crawler/int/", function (data) {
                   if (data == 0) {
                     alert("The crawl job is ending gracefully. It may take up to 30 minutes!");
                   } else {
@@ -266,11 +266,11 @@
 
       $('#halt-crawler').click(function (e) {
           e.preventDefault();
-          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
               if(data == 0) {
                   alert('There is no crawl job running!');
               } else {
-                $.post("http://0.0.0.0:6000/cmd/crawler/kill/", function (data) {
+                $.post("/explorer/cmd/crawler/kill/", function (data) {
                   if (data == 0) {
                     alert("The crawl job has been forced to stop!");
                   } else {
@@ -321,7 +321,7 @@
           e.preventDefault();
           var form_data = new FormData($('#form-import-seed')[0]);
           $.ajax({type: "POST",
-              url: "http://0.0.0.0:6000/cmd/seed/upload/",
+              url: "/explorer/cmd/seed/upload/",
               data: form_data, // Form data
               processData: false,
               contentType: false,
