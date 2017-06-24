@@ -52,8 +52,6 @@
                         <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
                     </div>
                     <div class="col-lg-4 col-md-4">
-                        <!--<span id="model-metrics" style="display: none; margin-top: 8%;">
-                            <span id="model-metrics-val">&nbsp;</span>-->
                         <div class="row" style="text-align: center;">
                             <div class="col-lg-6" style="margin-top: 10px; text-align:right;">
                                 <span data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" style="font-size:16px">You've marked:&nbsp;</span>
@@ -68,31 +66,12 @@
                                 <span id="nr_metric" style="font-size:16px">0</span>&nbsp;
                                 <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
                             </div>
-                            <!--<div class="col-lg-2" style="margin-top: 10px">
-                                <span id="hr_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
-                            </div>
-                            <div class="col-lg-2" style="margin-top: 10px">
-                                <span id="r_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
-                            </div>
-                            <div class="col-lg-2" style="margin-top: 10px">
-                                <span id="nr_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
-                            </div>-->
                         </div>
                     </div>
-                    <!--<div class="col-lg-2 col-md-2" style="text-align: center;">
-                        <button type="button" data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" class="btn btn-info btn-circle" onclick="return false;" style="margin-top: 10px"><i class="fa fa-question"></i></button>
-                    </div>-->
                      <div class="col-lg-4 col-md-4">
                         <button type="button" class="btn btn-primary update-model"
                     style="float: right !important; display: block; margin-top: 10px;">Update Model</button>
                     </div>
-                    <!--<div class="col-lg-2 col-md-2">
-                        <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
-                            <span id="model-accuracy-val">0.0</span></span>
-                    </div>-->
                 </div>
             </div>
             <!-- /.navbar-header -->
@@ -125,11 +104,22 @@
                             </form>
                             <a id="export-model"><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
                         </li>
+                        <li>
+                            <a id="browse-seed"><i class="fa fa-upload fa-fw"></i> Import Seed</a>
+                            <form id="form-import-seed" action="http://0.0.0.0:6000/cmd/seed/upload/" enctype="multipart/form-data" method="post">
+                                <input id="import-seed" type="file" name="seed" style="display: none" />
+                            </form>
+                        </li>
+                        <li>
+                            <a id="start-crawler"><i class="fa fa-hourglass-start fa-fw"></i> Start Crawler</a>
+                        </li>
+                        <li>
+                            <a id="stop-crawler"><i class="fa fa-hourglass-end fa-fw"></i> Stop Crawler</a>
+                        </li>
+                        <li>
+                            <a id="halt-crawler"><i class="fa fa-hourglass-o fa-fw"></i> Halt Crawler</a>
+                        </li>
                     </ul>
-                    <!--<form id="form-export-model" action="classify/download/" method="post">
-                            <button id="export-model" type="submit" class="btn btn-primary"
-                            style="float: right !important; display: block; margin-top: 4%;">Export Model</button>
-                    </form>-->
                 </div>
                 <!-- /.sidebar-collapse -->
             </div>
@@ -240,6 +230,57 @@
           });
       });
 
+      $('#start-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+              if(data != 0) {
+                  alert('There is already a crawl job running!');
+              } else {
+                $.post("http://0.0.0.0:6000/cmd/crawler/crawl/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job has been started!");
+                  } else {
+                    alert("Please upload a seed file to start a crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
+      $('#stop-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+              if(data == 0) {
+                  alert('There is no crawl job running!');
+              } else {
+                $.post("http://0.0.0.0:6000/cmd/crawler/int/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job is ending gracefully. It may take up to 30 minutes!");
+                  } else {
+                    alert("An error occurred while stopping the crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
+      $('#halt-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("http://0.0.0.0:6000/cmd/crawler/exist/", function (data) {
+              if(data == 0) {
+                  alert('There is no crawl job running!');
+              } else {
+                $.post("http://0.0.0.0:6000/cmd/crawler/kill/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job has been forced to stop!");
+                  } else {
+                    alert("An error occurred while halting the crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
       $('#browse-file').click(function (e) {
           e.preventDefault();
           $('#import-model').trigger("click");
@@ -269,7 +310,35 @@
               }
           });
       });
+
+      $('#browse-seed').click(function (e) {
+          e.preventDefault();
+          $('#import-seed').trigger("click");
+      });
     });
+
+    $('#import-seed').change(function (e) {
+          e.preventDefault();
+          var form_data = new FormData($('#form-import-seed')[0]);
+          $.ajax({type: "POST",
+              url: "http://0.0.0.0:6000/cmd/seed/upload/",
+              data: form_data, // Form data
+              processData: false,
+              contentType: false,
+              cache: false,
+              mimeType: "multipart/form-data",
+              async: true,
+              crossDomain: true,
+              success:function(result)
+              {
+                  alert('A new seed file has been uploaded!');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
 
     function search_results(e) {
         e.preventDefault();
@@ -302,13 +371,13 @@
                           '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + (jdata[i - 1]['label'] < 0 ? default_label : jdata[i - 1]['label']) + '" />' +
                           '<div class="row" style="text-align:center">' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Highly Relevant</b>: This page contains the type of information required to answer questions for this domain. This is exactly what we are looking for." data-placement="bottom" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
                           '</div>' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Relevant</b>: This page contains domain-relevant information, but it won\'t help answer questions." data-placement="bottom" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
                           '</div>' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Not Relevant</b>: This page is irrelevant to the domain." data-placement="bottom" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
                           '</div>' +
                           '</div>' +
                           '</div>' +
@@ -334,6 +403,7 @@
                   }
 
                   $('#loader-page-wrapper').css('display', 'none');
+                  $('[data-toggle="tooltip"]').tooltip();
               },
               error:function(result)
               {
