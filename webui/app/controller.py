@@ -45,24 +45,26 @@ def check_model():
 
 @mod_app.route('/cmd/crawler/exist/', methods=['POST'])
 def check_crawl_exists():
-    return requests.post("http://sparkler:6000/cmd/crawler/exist/").text
+    return requests.post("http://0.0.0.0:6000/cmd/crawler/exist/").text
 
 
 @mod_app.route('/cmd/crawler/crawl/', methods=['POST'])
 def start_crawl():
-    return requests.post("http://sparkler:6000/cmd/crawler/crawl/").text
+    return requests.post("http://0.0.0.0:6000/cmd/crawler/crawl/").text
 
 
 @mod_app.route('/cmd/crawler/int/', methods=['POST'])
 def kill_crawl_gracefully():
-    return requests.post("http://sparkler:6000/cmd/crawler/int/").text
+    return requests.post("http://0.0.0.0:6000/cmd/crawler/int/").text
 
 
 @mod_app.route('/cmd/crawler/kill/', methods=['POST'])
 def force_kill_crawl():
-    return requests.post("http://sparkler:6000/cmd/crawler/kill/").text
+    return requests.post("http://0.0.0.0:6000/cmd/crawler/kill/").text
 
 
 @mod_app.route('/cmd/seed/upload/', methods=['POST'])
 def upload_seed():
-    return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request.get_data()).text
+    print request.get_data()
+    return requests.post("http://0.0.0.0:6000/cmd/seed/upload/", data=request.get_data(),
+                         headers={key: value for (key, value) in request.headers if key != 'Host'}).text
