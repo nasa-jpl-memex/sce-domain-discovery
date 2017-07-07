@@ -41,34 +41,21 @@
         <!-- Navigation -->
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; width: 100% !important;">
             <div class="navbar-header" style="width: 95% !important;">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+
+<!--                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+-->
                 <div class="row">
-                    <div class="col-lg-4 col-md-4">
-                        <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
-                    </div>
-                    <div class="col-lg-4 col-md-4">
-                        <div class="row" style="text-align: center;">
-                            <div class="col-lg-6" style="margin-top: 10px; text-align:right;">
-                                <span data-toggle="tooltip" title="Mark at least 10 of each in order to build a good model. In this case, more is even better." data-placement="bottom" style="font-size:16px">You've marked:&nbsp;</span>
-                            </div>
-                            <div class="col-lg-6" style="margin-top: 10px; text-align:left;">
-                                <span id="hr_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
-                                &nbsp;
-                                <span id="r_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
-                                &nbsp;
-                                <span id="nr_metric" style="font-size:16px">0</span>&nbsp;
-                                <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                     <div class="col-lg-4 col-md-4">
+                   <div class="col-lg-4 col-md-4">
+                      <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
+                   </div>
+                   <div class="col-lg-4 col-md-4">
+                   </div>
+                   <div class="col-lg-4 col-md-4">
                         <button type="button" class="btn btn-primary update-model"
                     style="float: right !important; display: block; margin-top: 10px;">Update Model</button>
                     </div>
@@ -80,7 +67,8 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li class="sidebar-search">
-                            <div class="input-group custom-search-form">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="This is the first step. It is what most of the page is devoted to. Start with a search term, just like you would in any search engine like Google, Bing, or Yahoo."><div class="circle">1</div>&nbsp; Generate a Model</div>
+                            <div class="input-group custom-search-form" style="margin-top:10px;">
                                 <input id="search-qry" type="text" class="form-control" placeholder="Search...">
                                 <span class="input-group-btn">
                                   <button id="search-bg" class="btn btn-default" type="button">
@@ -88,37 +76,76 @@
                                   </button>
                                 </span>
                             </div>
-                            <!-- /input-group -->
+                            <div>
+                                <div style="margin: 10px 15px;">
+                                    <div>
+                                        <span data-toggle="tooltip" title="Once you've searched, pages will show up on the right. Mark at least 10 pages with each relevancy rank in order to build a good model. In this case, more is even better." data-placement="bottom">Minimum 10 each</span>
+                                    </div>
+                                    <div>
+                                        <span id="hr_metric" >0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
+                                        &nbsp;
+                                        <span id="r_metric">0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
+                                        &nbsp;
+                                        <span id="nr_metric">0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a class="small-font" role="button" data-toggle="collapse" href="#modelOptions">
+                              More Options &raquo;
+                            </a>
+                            <ul class="collapse noMarkers" id="modelOptions">
+                              <li>
+                                <a id="create-new" href="classify/createnew/" data-toggle="tooltip" data-placement="bottom" title="This WILL delete your current model!!!"><i class="fa fa-dashboard fa-fw"></i> Create New Model</a><br>
+                              </li>
+                              <li>
+                                <a id="browse-file" href="classify/upload/" data-toggle="tooltip" data-placement="bottom" title="Upload a model from your computer. This will replace the current model if there is one."><i class="fa fa-cloud-upload fa-fw"></i> Import Model</a><br>
+                              </li>
+                              <li>
+                                <input id="import-model" type="file" name="file" style="display: none" />
+                                <form id="form-export-model" action="classify/download/" method="post">
+                                  <button id="export-model-button" type="submit" class="btn btn-primary" style="float: right !important; display: none; margin-top: 4%;">Export Model</button>
+                                </form>
+                                <a id="export-model" data-toggle="tooltip" data-placement="bottom" title="Save the current model to your computer."><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
+                              </li>
+                            </ul>
                         </li>
-                        <li>
-                            <a id="create-new" href="classify/createnew/"><i class="fa fa-dashboard fa-fw"></i> Create New Model</a>
-                        </li>
-                        <li>
-                            <a id="browse-file" href="classify/upload/"><i class="fa fa-cloud-upload fa-fw"></i> Import Model</a>
-                            <input id="import-model" type="file" name="file" style="display: none" />
-                        </li>
-                        <li>
-                            <form id="form-export-model" action="classify/download/" method="post">
-                                <button id="export-model-button" type="submit" class="btn btn-primary"
-                            style="float: right !important; display: none; margin-top: 4%;">Export Model</button>
-                            </form>
-                            <a id="export-model"><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
-                        </li>
-                        <li>
-                            <a id="browse-seed"><i class="fa fa-upload fa-fw"></i> Import Seed</a>
+                        <li class="sidebar-search">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="Create and upload a file with a list of urls in it. These urls will be deep crawled (we'll get everything we can from them!) and also used as the starting place for the data collection."><div class="circle">2</div>&nbsp; Create a Seed File</div>
+                            <a id="browse-seed" data-toggle="tooltip" data-placement="bottom" title="This must be a .txt file with one url on each line. The urls needs the http:// stuff at the beginning!"><i class="fa fa-upload fa-fw"></i> Import Seed File</a>
                             <form id="form-import-seed" action="/explorer/cmd/seed/upload/" enctype="multipart/form-data" method="post">
                                 <input id="import-seed" type="file" name="seed" style="display: none" />
                             </form>
                         </li>
-                        <li>
-                            <a id="start-crawler"><i class="fa fa-hourglass-start fa-fw"></i> Start Crawler</a>
+                        <li class="sidebar-search">
+                          <div  data-toggle="tooltip" data-placement="bottom" title="Click the button to Start the Crawl and we'll go start collecting data!"><div class="circle">3</div>&nbsp; Start the Crawl</div>
+                          <a id="start-crawler" data-toggle="tooltip" data-placement="bottom" title="If you click this button, we'll start collecting data."><i class="fa fa-hourglass-start fa-fw"></i> Start Crawler</a>
+                          <a class="small-font" role="button" data-toggle="collapse" href="#crawlOptions">
+                            More Options &raquo;
+                          </a>
+                          <ul class="collapse noMarkers" id="crawlOptions">
+                            <li>
+                              <a id="stop-crawler" data-toggle="tooltip" data-placement="bottom" title="Stop the crawler gracefully. You won't lose any data, but it may take up to 30 minutes to stop."><i class="fa fa-hourglass-end fa-fw"></i> Stop Crawler</a>
+                            </li>
+                            <li>
+                              <a id="halt-crawler" data-toggle="tooltip" data-placement="bottom" title="Hitting this button will stop the crawler NOW! No waiting, but you may lose some data that was collected."><i class="fa fa-hourglass-o fa-fw"></i> Halt Crawler</a>
+                            </li>
+                          </ul>
                         </li>
-                        <li>
-                            <a id="stop-crawler"><i class="fa fa-hourglass-end fa-fw"></i> Stop Crawler</a>
+                        <li class="sidebar-search">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="Go here to see how your crawl is progressing. It may take up to 30 minutes before the first data appears in the dashboard.">
+                              <!-- write the url for the dashboard -->
+                              <script language="JavaScript">
+                                document.write('<a href="' + window.location.protocol + '//' + window.location.hostname + ':8983/banana/' + '" >' );
+                              </script>
+                                <div class="circle">4</div>&nbsp; Visit the Crawl Dashboard
+                              </a>
+                            </div>
                         </li>
-                        <li>
-                            <a id="halt-crawler"><i class="fa fa-hourglass-o fa-fw"></i> Halt Crawler</a>
-                        </li>
+
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->

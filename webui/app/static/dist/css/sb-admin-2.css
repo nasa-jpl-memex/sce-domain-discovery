@@ -3,6 +3,29 @@
  * Copyright 2013-2016 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
  */
+
+/* custom css for DD Explorer */
+.circle {
+  background: purple;
+  width: 25px;
+  height: 20px;
+  border-radius: 50%;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  float: left;
+}
+.small-font{
+  font-size: 11px;
+}
+.noMarkers {
+  list-style-type: none;
+  padding-left: 15px;
+}
+.noMarkers li {
+  border-bottom: none !important;
+}
+
 body {
   background-color: #f8f8f8;
 }
