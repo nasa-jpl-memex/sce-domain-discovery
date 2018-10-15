@@ -83,13 +83,13 @@
                                     </div>
                                     <div>
                                         <span id="hr_metric" >0</span>&nbsp;
-                                        <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
+                                        <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
                                         &nbsp;
                                         <span id="r_metric">0</span>&nbsp;
-                                        <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
+                                        <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
                                         &nbsp;
                                         <span id="nr_metric">0</span>&nbsp;
-                                        <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
+                                        <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-times"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -398,13 +398,13 @@
                           '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + (jdata[i - 1]['label'] < 0 ? default_label : jdata[i - 1]['label']) + '" />' +
                           '<div class="row" style="text-align:center">' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Highly Relevant</b>: This page contains the type of information required to answer questions for this domain. This is exactly what we are looking for." data-placement="bottom" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Highly Relevant</b>: This page contains the type of information required to answer questions for this domain. This is exactly what we are looking for." data-placement="bottom" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
                           '</div>' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Relevant</b>: This page contains domain-relevant information, but it won\'t help answer questions." data-placement="bottom" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Relevant</b>: This page contains domain-relevant information, but it won\'t help answer questions." data-placement="bottom" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-check"></i></button>' +
                           '</div>' +
                           '<div class="col-lg-4">' +
-                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Not Relevant</b>: This page is irrelevant to the domain." data-placement="bottom" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Not Relevant</b>: This page is irrelevant to the domain." data-placement="bottom" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-times"></i></button>' +
                           '</div>' +
                           '</div>' +
                           '</div>' +
@@ -450,13 +450,13 @@
         }
         var mark_val = 0; // By default, not relevant
         switch(marker) {
-            case 'danger':
+            case 'success':
                 mark_val = 2;
                 break;
-            case 'success':
+            case 'warning':
                 mark_val = 1;
                 break;
-            case 'warning':
+            case 'danger':
                 mark_val = 0;
                 break;
             default:
@@ -469,13 +469,13 @@
         var marker = 'default';
         switch(label) {
             case 2:
-                marker = 'danger';
-                break;
-            case 1:
                 marker = 'success';
                 break;
-            case 0:
+            case 1:
                 marker = 'yellow';
+                break;
+            case 0:
+                marker = 'danger';
                 break;
             default:
                 marker = 'yellow';
