@@ -8,6 +8,9 @@
 .fa {
   font-size: 18px !;
 }
+.panel-heading {
+  white-space: nowrap;
+}
 .circle {
   background: purple;
   width: 25px;
