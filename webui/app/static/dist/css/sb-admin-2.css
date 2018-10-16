@@ -5,6 +5,9 @@
  */
 
 /* custom css for DD Explorer */
+.fa {
+  font-size: 18px !;
+}
 .circle {
   background: purple;
   width: 25px;
