@@ -423,8 +423,8 @@
 
                   // Adding Content
                   for (i = 1; i <= jdata.length; i++) {
-                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
-                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'].slice(0,35) +'</a>');
+                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + '<span data-toggle="tooltip" title="'+jdata[i - 1]['title']+'">jdata[i - 1]['title'].slice(0, 33) +
+                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" data-toggle="tooltip" title="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'].slice(0,31) +'</a>');
                       //$("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
                       $("#page" + i + "-frame").attr("src", jdata[i - 1]['url']);
                   }
