@@ -23,8 +23,7 @@ RUN apt-get update && apt-get install -y git maven emacs-nox
 RUN git clone https://github.com/nasa-jpl-memex/sce-domain-discovery.git
 
 RUN apt-get install -y python && \
-    apt-get install -y python-setuptools python-dev build-essential && \
-    easy_install pip
+    apt-get install -y python-setuptools python-pip python-dev build-essential
 
 WORKDIR /projects/domain-discovery/webui
 RUN git pull --all && git checkout memex-dd
