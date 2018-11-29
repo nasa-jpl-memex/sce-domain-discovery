@@ -2,7 +2,6 @@
 # Pull base image.
 
 FROM ubuntu
-RUN echo "Hello world"
 WORKDIR /projects
 RUN apt-get update && \
     apt-get install -y software-properties-common wget git
@@ -25,7 +24,7 @@ RUN git clone https://github.com/nasa-jpl-memex/sce-domain-discovery.git
 RUN apt-get install -y python && \
     apt-get install -y python-setuptools python-pip python-dev build-essential
 
-WORKDIR /projects/domain-discovery/webui
+WORKDIR /projects/sce-domain-discovery/webui
 RUN git pull --all && git checkout memex-dd
 RUN pip install -r requirements.txt
 
