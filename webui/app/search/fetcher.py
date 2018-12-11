@@ -141,6 +141,6 @@ class Fetcher(object):
             result = Fetcher.plain(url)
         except:
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
-            #print('An error occurred while fetching URL: ' + url + ' using urllib. Trying Selenium...')
-            #result = Fetcher.selenium(url)
+            print('An error occurred while fetching URL: ' + url + ' using urllib. Trying Selenium...')
+            result = Fetcher.selenium(url)
         return result

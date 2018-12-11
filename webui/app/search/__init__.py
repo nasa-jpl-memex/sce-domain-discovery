@@ -17,7 +17,7 @@ def query_and_fetch(query, top_n=12):
     bad_request = False
     try:
         driver = Fetcher.get_selenium_driver()
-        driver.get('https://api.duckduckgo.com/?q=' + query + '&kl=wt-wt')
+        driver.get('https://duckduckgo.com/html/?q=' + query + '&kl=wt-wt')
 
     except:
         print('An error occurred while searching query: ' + query)
@@ -64,9 +64,9 @@ def query_and_fetch(query, top_n=12):
                         print('Moved to Next Page. Result Size: ' + str(result_size))
         except:
             print('An error occurred while searching query: '+ query + ' and fetching results')
-        #finally:
-        #    if driver is not None:
-        #        Fetcher.close_selenium_driver(driver)
+        finally:
+           if driver is not None:
+               Fetcher.close_selenium_driver(driver)
     setattr(flask.current_app, 'url_text', url_text)
     print('Search Completed')
     return url_details
@@ -81,7 +81,7 @@ def query(q, top_n=12):
     urls = set()
     try:
         driver = Fetcher.get_selenium_driver()
-        driver.get('https://api.duckduckgo.com/?q=' + q + '&kl=wt-wt')
+        driver.get('https://duckduckgo.com/html/?q=' + q + '&kl=wt-wt')
     except:
         print('An error occurred while searching query: ' + q)
         bad_request = True
