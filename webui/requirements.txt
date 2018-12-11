@@ -6,3 +6,4 @@ beautifulsoup4==4.6.0
 scikit_learn==0.18.1
 scipy
 requests
+flask-cors

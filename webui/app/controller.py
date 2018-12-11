@@ -1,11 +1,12 @@
 from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory
 from app import classifier
+from flask_cors import CORS
 import requests
 import os
 
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer')
-
+CORS(mod_app)
 
 # Define Controller(s)
 @mod_app.route('/')
