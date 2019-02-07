@@ -40,6 +40,7 @@ def update_model(annotations):
     global accuracy, splits, iteration
 
     url_text = getattr(flask.current_app, 'url_text', None)
+    url_details = getattr(flask.current_app, 'url_details', None)
 
     clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
@@ -56,8 +57,10 @@ def update_model(annotations):
         # add the old docs to the new
         prev_url_text=model['url_text']
         prev_labeled=model['labeled']
+        prev_url_details=model['url_details']
         url_text=np.append(url_text,prev_url_text,axis=0)
         labeled=np.append(labeled,prev_labeled,axis=0)
+        url_details=np.append(url_details,prev_url_details,axis=0)
 
     features = count_vect.fit_transform(url_text)
     features=tfidftransformer.fit_transform(features).toarray().astype(np.float64)
@@ -68,7 +71,7 @@ def update_model(annotations):
     clf.fit(features, labeled,)
 
     # save the model
-    model={'url_text':url_text,'labeled':labeled,'countvectorizer':count_vect,'tfidftransformer':tfidftransformer,'clf':clf}
+    model={'url_text':url_text,'url_details':url_details,'labeled':labeled,'countvectorizer':count_vect,'tfidftransformer':tfidftransformer,'clf':clf}
     setattr(flask.current_app, 'model', model)
 
     predicted = clf.predict(features)

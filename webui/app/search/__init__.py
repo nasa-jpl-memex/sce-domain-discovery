@@ -68,6 +68,7 @@ def query_and_fetch(query, top_n=12):
            if driver is not None:
                Fetcher.close_selenium_driver(driver)
     setattr(flask.current_app, 'url_text', url_text)
+    setattr(flask.current_app, 'url_details', url_details)
     print('Search Completed')
     return url_details
 
