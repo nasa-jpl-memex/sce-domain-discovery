@@ -5,7 +5,9 @@ import numpy as np
 import os
 import json
 from flask import request, flash
-from sklearn.neural_network import MLPClassifier
+# from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
+
 
 accuracy = 0.0
 splits = 2
@@ -42,7 +44,8 @@ def update_model(annotations):
     url_text = getattr(flask.current_app, 'url_text', None)
     url_details = getattr(flask.current_app, 'url_details', None)
 
-    clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
+    # clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
+    clf=RandomForestClassifier(n_estimators=100)
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
     tfidftransformer = TfidfTransformer()
 
