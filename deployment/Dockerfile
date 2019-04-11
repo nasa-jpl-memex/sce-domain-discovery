@@ -1,7 +1,7 @@
 
 # Pull base image.
 
-FROM ubuntu
+FROM ubuntu:bionic
 WORKDIR /projects/sce-domain-discovery/
 RUN apt-get update && \
     apt-get install -y software-properties-common wget
