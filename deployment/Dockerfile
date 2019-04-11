@@ -25,7 +25,6 @@ RUN apt-get install -y python && \
     apt-get install -y python-setuptools python-pip python-dev build-essential
 
 WORKDIR /projects/sce-domain-discovery/webui
-RUN git pull --all && git checkout memex-dd
 RUN pip install -r requirements.txt
 
 CMD ["python", "run.py"]
