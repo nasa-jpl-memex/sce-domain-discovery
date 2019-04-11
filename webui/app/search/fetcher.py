@@ -42,6 +42,7 @@ class Fetcher(object):
     @staticmethod
     def new_selenium_driver(timeout=10):
         wd = os.getenv('WEBDRIVER_URL', "http://localhost:4444/wd/hub")
+        print("WEBDRIVER URL is "+ wd)
         driver = webdriver.Remote(command_executor=wd,
                                       desired_capabilities=DesiredCapabilities.FIREFOX)
         #driver.set_page_load_timeout(timeout)
