@@ -37,6 +37,9 @@ def clear_model():
     setattr(flask.current_app, 'model', None)
     return '0'
 
+def new_model(name):
+    print('create new model')
+
 
 def update_model(annotations):
     global accuracy, splits, iteration

@@ -10,6 +10,9 @@ app = Flask(__name__,
             static_url_path='',
             static_folder='static')
 
+
+
+
 # Configurations
 app.config.from_object('config')
 
