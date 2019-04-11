@@ -6,7 +6,7 @@ from urllib2 import urlopen
 import threading
 import Queue
 import re
-
+import os
 
 class Fetcher(object):
     """Fetching Capability using Selenium"""
@@ -41,7 +41,8 @@ class Fetcher(object):
 
     @staticmethod
     def new_selenium_driver(timeout=10):
-        driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
+        webdriver = os.getenv('WEBDRIVER_URL', "http://localhost:4444/wd/hub")
+        driver = webdriver.Remote(command_executor=webdriver,
                                       desired_capabilities=DesiredCapabilities.FIREFOX)
         #driver.set_page_load_timeout(timeout)
         return driver
