@@ -19,7 +19,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 RUN apt-get update && apt-get install -y git maven emacs-nox
 
-RUN git clone https://github.com/nasa-jpl-memex/sce-domain-discovery.git
+RUN git clone https://gitlab.com/sparkler-crawl-environment/memex-dd.git
 
 RUN apt-get install -y python && \
     apt-get install -y python-setuptools python-pip python-dev build-essential
