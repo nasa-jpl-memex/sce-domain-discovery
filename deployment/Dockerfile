@@ -2,9 +2,9 @@
 # Pull base image.
 
 FROM ubuntu
-WORKDIR /projects
+WORKDIR /projects/sce-domain-discovery/
 RUN apt-get update && \
-    apt-get install -y software-properties-common wget git
+    apt-get install -y software-properties-common wget
 RUN \
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
   apt-add-repository universe && \
@@ -17,7 +17,7 @@ RUN \
 # Define commonly used JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
-RUN apt-get update && apt-get install -y git maven emacs-nox
+RUN apt-get update && apt-get install -y maven emacs-nox
 
 COPY . /projects/sce-domain-discovery/
 
