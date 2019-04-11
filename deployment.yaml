@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: sce-firefox
-        image: registry.gitlab.com/sparkler-crawl-environment/memex-dd:memex-dd
+        image: selenium/standalone-firefox-debug
         env:
         - name: WEBDRIVER_URL
           value: "http://sce-firefox:4444"
