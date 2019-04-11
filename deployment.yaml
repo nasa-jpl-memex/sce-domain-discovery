@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sce-firefox
+  labels:
+    app: sce-firefox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-firefox
+  template:
+    metadata:
+      labels:
+        app: sce-firefox
+    spec:
+      containers:
+      - name: sce-firefox
+        image: registry.gitlab.com/sparkler-crawl-environment/memex-dd:memex-dd
+        env:
+        - name: WEBDRIVER_URL
+          value: "http://sce-firefox:4444"
+        ports:
+        - name: http
+          containerPort: 4444
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: gitlab-registry
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sce-api
+  labels:
+    app: sce-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-api
+  template:
+    metadata:
+      labels:
+        app: sce-api
+    spec:
+      containers:
+      - name: sce-api
+        image: registry.gitlab.com/sparkler-crawl-environment/memex-dd:memex-dd
+        env:
+        - name: WEBDRIVER_URL
+          value: "http://sce-firefox:4444"
+        ports:
+        - name: http
+          containerPort: 5000
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: gitlab-registry
+---
+apiVersion: v1
+kind: Service
+metadata:  
+    name: sce-api
+spec:
+  ports:
+  - name: http
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: sce-api
+  type: LoadBalancer
