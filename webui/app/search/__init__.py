@@ -2,12 +2,24 @@ from fetcher import Fetcher
 from app.classifier import predict
 import flask
 import traceback
+from pyArango.connection import *
 
 url_details = []
 url_text = []
+db = None
+models = None
+conn = Connection()
+if not conn.hasDatabase("sce"):
+    db = conn.createDatabase("sce")
+else:
+    db = conn["sce"]
 
+if not db.hasCollection('models'):
+    models = db.createCollection('Collection', name='models')
+else:
+    models = db.collections['models']
 
-def query_and_fetch(query, top_n=12):
+def query_and_fetch(query, model, top_n=12):
     """Query Duck Duck Go (DDG) for top n results"""
     global url_details, url_text
     print('Query: ' + query + '; Top N: ' + str(top_n))
@@ -67,8 +79,11 @@ def query_and_fetch(query, top_n=12):
         finally:
            if driver is not None:
                Fetcher.close_selenium_driver(driver)
-    setattr(flask.current_app, 'url_text', url_text)
-    setattr(flask.current_app, 'url_details', url_details)
+
+    model = models[model]
+    model['url_text'] = url_text
+    model['url_details'] = url_details
+    model.save()
     print('Search Completed')
     return url_details
 

@@ -7,11 +7,25 @@ import json
 from flask import request, flash
 # from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-
+from pyArango.connection import *
 
 accuracy = 0.0
 splits = 2
 iteration = 1
+
+db = None
+models = None
+conn = Connection()
+if not conn.hasDatabase("sce"):
+    db = conn.createDatabase("sce")
+else:
+    db = conn["sce"]
+
+if not db.hasCollection('models'):
+    models = db.createCollection('Collection', name='models')
+else:
+    models = db.collections['models']
+
 
 def load_vocab():
     """Load Vocabulary"""
@@ -29,24 +43,39 @@ def load_vocab():
     return keywords
 
 
-def clear_model():
-    print('clear_model')
-    fname = 'model.pkl'
-    if os.path.isfile(fname):
-        os.remove(fname)
-    setattr(flask.current_app, 'model', None)
-    return '0'
+# def clear_model():
+#     print('clear_model')
+#     fname = 'model.pkl'
+#     if os.path.isfile(fname):
+#         os.remove(fname)
+#     setattr(flask.current_app, 'model', None)
+#     return '0'
 
 def new_model(name):
+    ## Needs to create model in database, with name an initial crawl urls etc
+
+    model = models.createDocument()
+    model['name'] = name
+    model._key = name
+    model.save()
     print('create new model')
 
 
-def update_model(annotations):
+def update_model(m, nnotations):
     global accuracy, splits, iteration
 
-    url_text = getattr(flask.current_app, 'url_text', None)
-    url_details = getattr(flask.current_app, 'url_details', None)
+    model = models[m]
+    #url_text = getattr(flask.current_app, 'url_text', None)
+    #url_details = getattr(flask.current_app, 'url_details', None)
+    if 'url_text' in model:
+        url_text = model['url_text']
+    else:
+        url_text = None
 
+    if 'url_details' in model:
+        url_details = model['url_details']
+    else:
+        url_details = None
     # clf = MLPClassifier(max_iter=1000, learning_rate='adaptive',)
     clf=RandomForestClassifier(n_estimators=100)
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
@@ -57,7 +86,7 @@ def update_model(annotations):
         return '-1'
 
     labeled = np.array(annotations)
-    model=getattr(flask.current_app, 'model', None)
+    #model=getattr(flask.current_app, 'model', None)
 
     if model is not None:
         # add the old docs to the new
@@ -77,9 +106,14 @@ def update_model(annotations):
     clf.fit(features, labeled,)
 
     # save the model
-    model={'url_text':url_text,'url_details':url_details,'labeled':labeled,'countvectorizer':count_vect,'tfidftransformer':tfidftransformer,'clf':clf}
-    setattr(flask.current_app, 'model', model)
-
+    model['url_test'] = url_text
+    model['url_details'] = url_details
+    model['labeled'] = labeled
+    model['countvectorizer'] = count_vect
+    model['tfidftransformer'] = tfidftransformer
+    model['clf'] = clf
+    #setattr(flask.current_app, 'model', model)
+    model.save()
     predicted = clf.predict(features)
     accuracy = (labeled == predicted).sum() / float(len(labeled))
 
@@ -100,11 +134,11 @@ def get_metrics(model):
     return dictionary
 
 
-def predict(txt):
+def predict(m, txt):
 
 
-    model = getattr(flask.current_app, 'model', None)
-
+    #model = getattr(flask.current_app, 'model', None)
+    model = models[m]
     if model is None:
         return -1
 
@@ -153,9 +187,10 @@ def import_model():
     return json_dictionary
 
 
-def export_model():
+def export_model(m):
     global accuracy
-    model = getattr(flask.current_app, 'model', None)
+    #model = getattr(flask.current_app, 'model', None)
+    model = models[m]
 
     if model is None:
         return -1
@@ -168,8 +203,9 @@ def export_model():
     return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
 
 
-def check_model():
-    model = getattr(flask.current_app, 'model', None)
+def check_model(m):
+    #model = getattr(flask.current_app, 'model', None)
+    model = models[m]
     if model is None:
         return str(-1)
 
