@@ -15,7 +15,7 @@ iteration = 1
 
 db = None
 models = None
-conn = Connection('http://single-server-int:8529', 'root')
+conn = Connection('https://single-server-int:8529', 'root', '',verify=False)
 if not conn.hasDatabase("sce"):
     db = conn.createDatabase("sce")
 else:
