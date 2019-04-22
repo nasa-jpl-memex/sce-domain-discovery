@@ -60,6 +60,10 @@ def new_model(name):
     model.save()
     print('create new model')
 
+def get_models():
+    aql = "FOR model IN models RETURN {name: model.name}"
+    queryResult = db.AQLQuery(aql, rawResults=False, batchSize=1)
+    return queryResult
 
 def update_model(m, nnotations):
     global accuracy, splits, iteration

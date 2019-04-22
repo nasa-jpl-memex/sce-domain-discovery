@@ -21,6 +21,10 @@ def create_new_model(model):
     return("done")
 
 
+@mod_app.route('/classify/listmodels', methods=['GET'])
+def list_models():
+    return classifier.get_models()
+
 
 # POST Requests
 @mod_app.route('/classify/update/<model>', methods=['POST'])
