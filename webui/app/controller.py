@@ -4,7 +4,7 @@ from flask_cors import CORS
 import requests
 import os
 # Define Blueprint(s)
-mod_app = Blueprint('application', __name__, url_prefix='/explorer')
+mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
 CORS(mod_app)
 
 # Define Controller(s)

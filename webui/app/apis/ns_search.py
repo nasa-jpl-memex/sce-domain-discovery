@@ -1,4 +1,4 @@
-from flask_restplus import Namespace, Resource, fields, cors
+from flask_restplus import Namespace, Resource, cors
 
 from app import search
 import json
