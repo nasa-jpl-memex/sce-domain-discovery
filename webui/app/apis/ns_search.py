@@ -3,6 +3,9 @@ from flask_restplus import Namespace, Resource, fields, cors
 from app import search
 import json
 
+from pyArango.theExceptions import DocumentNotFoundError
+from werkzeug.exceptions import BadRequest
+
 api = Namespace('search', description='Query Duck Duck Go for results')
 
 
@@ -13,7 +16,12 @@ class Search(Resource):
     @cors.crossdomain(origin='*')
     def get(self, model, query):
         """Search Duck Duck Go"""
-        url_details = search.query_and_fetch(query, model, top_n=12)
+        try:
+            url_details = search.query_and_fetch(query, model, top_n=12)
+        except DocumentNotFoundError as e:
+            print(e)
+            raise BadRequest('Model Not Found')
+
         return json.dumps(url_details)
 
 

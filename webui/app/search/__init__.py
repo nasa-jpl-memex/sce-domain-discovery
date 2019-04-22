@@ -1,3 +1,5 @@
+from pyArango.theExceptions import DocumentNotFoundError
+
 from fetcher import Fetcher
 from app.classifier import predict
 import flask
@@ -80,10 +82,15 @@ def query_and_fetch(query, model, top_n=12):
            if driver is not None:
                Fetcher.close_selenium_driver(driver)
 
-    model = models[model]
-    model['url_text'] = url_text
-    model['url_details'] = url_details
-    model.save()
+    try:
+        model = models[model]
+        model['url_text'] = url_text
+        model['url_details'] = url_details
+        model.save()
+    except DocumentNotFoundError as error:
+        print(error)
+        raise
+
     print('Search Completed')
     return url_details
 
