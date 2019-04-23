@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory
+from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory, jsonify
 from app import classifier
 from flask_cors import CORS
 import requests
@@ -23,7 +23,7 @@ def create_new_model(model):
 
 @mod_app.route('/classify/listmodels', methods=['GET'])
 def list_models():
-    return classifier.get_models()
+    return jsonify(classifier.get_models())
 
 
 # POST Requests
@@ -31,9 +31,12 @@ def list_models():
 def build_model(model):
     ## TODO Specify model
     annotations = []
-    data = request.get_data()
-    for item in data.split('&'):
-        annotations.append(int(item.split('=')[1]))
+    data = request.get_json()
+    for key, value in data.iteritems():
+        annotations.append(int(value))
+    #for item in data.split('&'):
+    #    annotations.append(int(item.split('=')[1]))
+
     accuracy = classifier.update_model(model, annotations)
     return accuracy
 
@@ -52,9 +55,11 @@ def download_model(model):
 
 @mod_app.route('/classify/exist/<model>', methods=['POST'])
 def check_model(model):
-    ## TODO Specify model
     return classifier.check_model(model)
 
+@mod_app.route('/classify/stats/<model>', methods=['GET'])
+def model_stats(model):
+    return classifier.check_model(model)
 
 @mod_app.route('/cmd/crawler/exist/<model>', methods=['POST'])
 def check_crawl_exists(model):
@@ -91,6 +96,6 @@ def upload_seed(model):
     ## TODO Convert uploaded text to file for sparker.
     ## TODO Come up with a way of updating the uploaded data.
     ## TODO Allow to specify model
-
-    return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request.get_data(),
-                         headers={key: value for (key, value) in request.headers if key != 'Host'}).text
+    classifier.save_seeds(model, request.get_data())
+    #return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request.get_data(),
+    #                     headers={key: value for (key, value) in request.headers if key != 'Host'}).text

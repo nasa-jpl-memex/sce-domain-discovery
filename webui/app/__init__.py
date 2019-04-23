@@ -24,10 +24,10 @@ from app.controller import mod_app as app_module
 # Register blueprint(s)
 app.register_blueprint(app_module)
 
-filename = 'model.pkl'
-if os.path.isfile(filename):
-    model = joblib.load(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
-    setattr(app, 'model', model)
+#filename = 'model.pkl'
+#if os.path.isfile(filename):
+#    model = joblib.load(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
+#    setattr(app, 'model', model)
 
 # Initialize flask-restplus
 api.init_app(app)

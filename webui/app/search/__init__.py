@@ -2,15 +2,16 @@ from pyArango.theExceptions import DocumentNotFoundError
 
 from fetcher import Fetcher
 from app.classifier import predict
-import flask
 import traceback
 from pyArango.connection import *
+import os
 
 url_details = []
 url_text = []
 db = None
 models = None
-conn = Connection('https://single-server-int:8529', 'root', '',verify=False)
+aurl = os.getenv('ARANGO_URL', 'https://single-server-int:8529')
+conn = Connection(aurl, 'root', '',verify=False)
 if not conn.hasDatabase("sce"):
     db = conn.createDatabase("sce")
 else:
@@ -63,7 +64,7 @@ def query_and_fetch(query, model, top_n=12):
                         details['url'] = fetched_data[0]
                         details['html'] = fetched_data[1]
                         details['title'] = fetched_data[2]
-                        details['label'] = predict(fetched_data[3])
+                        details['label'] = predict(model, fetched_data[3])
                         url_details.append(details)
                         url_text.append(fetched_data[3])
                         if len(url_details) == top_n:
@@ -76,7 +77,8 @@ def query_and_fetch(query, model, top_n=12):
                         results = results[result_size:]
                         result_size = len(results)
                         print('Moved to Next Page. Result Size: ' + str(result_size))
-        except:
+        except Exception as e:
+            print(e)
             print('An error occurred while searching query: '+ query + ' and fetching results')
         finally:
            if driver is not None:

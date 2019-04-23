@@ -41,7 +41,7 @@ class Fetcher(object):
 
     @staticmethod
     def new_selenium_driver(timeout=10):
-        wd = os.getenv('WEBDRIVER_URL', "http://localhost:4444/wd/hub")
+        wd = os.getenv('WEBDRIVER_URL', "http://192.168.64.2:30499/wd/hub")
         print("WEBDRIVER URL is "+ wd)
         driver = webdriver.Remote(command_executor=wd,
                                       desired_capabilities=DesiredCapabilities.FIREFOX)
@@ -105,7 +105,8 @@ class Fetcher(object):
             soup = BeautifulSoup(data, 'html.parser')
             print('Parsed %s from %s' % (len(data), url))
             queue.put([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])
-        except:
+        except Exception as e:
+            print(e)
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
 
     @staticmethod

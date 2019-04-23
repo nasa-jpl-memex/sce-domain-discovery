@@ -1,3 +1,4 @@
+from pickle import dumps, loads
 from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer
 from sklearn.externals import joblib
 import flask
@@ -8,6 +9,7 @@ from flask import request, flash
 # from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from pyArango.connection import *
+import base64
 
 accuracy = 0.0
 splits = 2
@@ -15,7 +17,8 @@ iteration = 1
 
 db = None
 models = None
-conn = Connection('https://single-server-int:8529', 'root', '',verify=False)
+aurl = os.getenv('ARANGO_URL', 'https://single-server-int:8529')
+conn = Connection(aurl, 'root', '',verify=False)
 if not conn.hasDatabase("sce"):
     db = conn.createDatabase("sce")
 else:
@@ -62,21 +65,20 @@ def new_model(name):
 
 def get_models():
     aql = "FOR model IN models RETURN {name: model.name}"
-    queryResult = db.AQLQuery(aql, rawResults=False, batchSize=1)
-    return queryResult
+    queryResult = db.AQLQuery(aql, rawResults=True, batchSize=1)
+    return list(queryResult)
 
-def update_model(m, nnotations):
+def update_model(m, annotations):
     global accuracy, splits, iteration
 
     model = models[m]
-    #url_text = getattr(flask.current_app, 'url_text', None)
-    #url_details = getattr(flask.current_app, 'url_details', None)
-    if 'url_text' in model:
+
+    if model['url_text'] is not None:
         url_text = model['url_text']
     else:
         url_text = None
 
-    if 'url_details' in model:
+    if model['url_details'] is not None:
         url_details = model['url_details']
     else:
         url_details = None
@@ -92,7 +94,7 @@ def update_model(m, nnotations):
     labeled = np.array(annotations)
     #model=getattr(flask.current_app, 'model', None)
 
-    if model is not None:
+    if model['labeled'] is not None:
         # add the old docs to the new
         prev_url_text=model['url_text']
         prev_labeled=model['labeled']
@@ -111,18 +113,22 @@ def update_model(m, nnotations):
 
     # save the model
     model['url_test'] = url_text
-    model['url_details'] = url_details
-    model['labeled'] = labeled
-    model['countvectorizer'] = count_vect
-    model['tfidftransformer'] = tfidftransformer
-    model['clf'] = clf
+    if isinstance(url_details, np.ndarray):
+        model['url_details'] = url_details.tolist()
+    else:
+        model['url_details'] = url_details
+    model['labeled'] = labeled.tolist()
+    cv = dumps(count_vect,0)
+    model['countvectorizer'] = base64.encodestring(dumps(count_vect,0))
+    model['tfidftransformer'] = base64.encodestring(dumps(tfidftransformer,0))
+    model['clf'] = base64.encodestring(dumps(clf,0))
     #setattr(flask.current_app, 'model', model)
     model.save()
     predicted = clf.predict(features)
     accuracy = (labeled == predicted).sum() / float(len(labeled))
 
-    fname = 'model.pkl'
-    joblib.dump(model, fname)
+    #fname = 'model.pkl'
+    #joblib.dump(model, fname)
 
     dictionary = get_metrics(model)
     json_dictionary = json.dumps(dictionary)
@@ -145,10 +151,12 @@ def predict(m, txt):
     model = models[m]
     if model is None:
         return -1
+    elif model['countvectorizer'] is None:
+        return -1
 
-    count_vect = model['countvectorizer']
-    tfidftransformer = model['tfidftransformer']
-    clf=model['clf']
+    count_vect = loads(base64.decodestring(model['countvectorizer']))
+    tfidftransformer = loads(base64.decodestring(model['tfidftransformer']))
+    clf=loads(base64.decodestring(model['clf']))
 
     features = count_vect.transform([txt])
     features=tfidftransformer.transform(features).toarray().astype(np.float64)
@@ -218,3 +226,8 @@ def check_model(m):
 
     # return str(0)
     return json_dictionary
+
+def save_seeds(m, data):
+    model = models[m]
+    model['seed_urls'] = data.splitlines()
+    model.save()
