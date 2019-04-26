@@ -1,14 +1,14 @@
 from flask_restplus import Namespace, Resource
 from flask import request
 from app import classifier
-
+import json
 api = Namespace('classify', description='Interact with the ML model')
 
 
 @api.route('/predict', methods=['GET','POST'])
 class Predict(Resource):
     @api.doc('predict')
-    def get(self, content):
+    def get(self, content, model):
         """Predict using ML model"""
         classes = {
             -1: 'Model doesn\'t exist',
@@ -20,7 +20,7 @@ class Predict(Resource):
         print (args)
         if len(args) != 0:
             content = args['content']
-        result = classifier.predict(content)
+        result = classifier.predict(model, content)
         return classes[result]
 
     @api.doc('predict')
@@ -35,7 +35,9 @@ class Predict(Resource):
         result = -1
         data = request.data
         print (data)
+        d = json.loads(data)
         if len(data) != 0:
-            content = data
-            result = classifier.predict(content)
+            content = d['content']
+            model = d['model']
+            result = classifier.predict(model, content)
         return classes[result]

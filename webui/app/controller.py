@@ -1,8 +1,8 @@
-from flask import Blueprint, request, render_template, redirect, url_for, send_from_directory, jsonify
-from app import classifier
-from flask_cors import CORS
 import requests
-import os
+from app import classifier
+from flask import Blueprint, request, send_from_directory, jsonify
+from flask_cors import CORS
+
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
 CORS(mod_app)
@@ -97,5 +97,18 @@ def upload_seed(model):
     ## TODO Come up with a way of updating the uploaded data.
     ## TODO Allow to specify model
     classifier.save_seeds(model, request.get_data())
-    #return requests.post("http://sparkler:6000/cmd/seed/upload/", data=request.get_data(),
-    #                     headers={key: value for (key, value) in request.headers if key != 'Host'}).text
+    seeds =  request.get_data().splitlines()
+    urls = ",".join(seeds)
+
+    f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    token =""
+    if f.mode == 'r':
+        token =f.read()
+    cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://192.168.64.2:31498/solr/crawldb", "-su", urls, "-id", model]
+    json = {"kind": "Pod", "apiVersion": "v1",
+             "metadata": {"name": model+"seed", "labels": {"run": model+"seed"}}, "spec": {
+            "containers": [
+                {"name": model+"seed", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
+                 "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
+    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+
