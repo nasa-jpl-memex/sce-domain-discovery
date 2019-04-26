@@ -92,10 +92,7 @@ def force_kill_crawl(model):
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
 def upload_seed(model):
     print request.get_data()
-
-    ## TODO Convert uploaded text to file for sparker.
     ## TODO Come up with a way of updating the uploaded data.
-    ## TODO Allow to specify model
     classifier.save_seeds(model, request.get_data())
     seeds =  request.get_data().splitlines()
     urls = ",".join(seeds)
@@ -104,7 +101,7 @@ def upload_seed(model):
     token =""
     if f.mode == 'r':
         token =f.read()
-    cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://192.168.64.2:31498/solr/crawldb", "-su", urls, "-id", model]
+    cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id", model]
     json = {"kind": "Pod", "apiVersion": "v1",
              "metadata": {"name": model+"seed", "labels": {"run": model+"seed"}}, "spec": {
             "containers": [
