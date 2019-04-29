@@ -70,23 +70,28 @@ def check_crawl_exists(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
-    ## TODO Specify model
-    ## TODO FIX URL for scale out
-    return requests.post("http://sparkler:6000/cmd/crawler/crawl/").text
+    f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    token =""
+    if f.mode == 'r':
+        token =f.read()
+    cmd = ["/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
+    json = {"kind": "Pod", "apiVersion": "v1",
+            "metadata": {"name": model+"crawl", "labels": {"run": model+"seed"}}, "spec": {
+            "containers": [
+                {"name": model+"crawl", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
+                 "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
+    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+
 
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
-    ## TODO Specify model
-    ## TODO FIX URL for scale out
-    return requests.post("http://sparkler:6000/cmd/crawler/int/").text
+    return requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
 
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
-    ## TODO Specify model
-    ## TODO FIX URL for scale out
-    return requests.post("http://sparkler:6000/cmd/crawler/kill/").text
+    return requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
 
 
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
