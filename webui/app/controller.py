@@ -80,18 +80,21 @@ def start_crawl(model):
             "containers": [
                 {"name": model+"crawl", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
                  "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-    return requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    return "crawl started"
 
 
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
-    return requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
+    requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
+    return "crawl killed"
 
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
-    return requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
+    requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
+    return "crawl killed"
 
 
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
@@ -112,6 +115,7 @@ def upload_seed(model):
             "containers": [
                 {"name": model+"seed", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
                  "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-    return requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    return "seed urls uploaded"
 
 
