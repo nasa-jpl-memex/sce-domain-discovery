@@ -1,27 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sce-crawler
-  labels:
-    app: sce-crawler
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: sce-crawler
-  template:
-    metadata:
-      labels:
-        app: sce-crawler
-    spec:
-      containers:
-      - name: sce-solr
-        image: registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd
-        imagePullPolicy: Always
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: sce-solr
   labels:
     app: sce-solr
