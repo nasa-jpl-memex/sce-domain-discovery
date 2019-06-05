@@ -28,6 +28,7 @@ def query_and_fetch(query, model, top_n=12):
     print('Query: ' + query + '; Top N: ' + str(top_n))
     url_details = []
     url_text = []
+    url_image = []
     driver = None
     bad_request = False
     try:
@@ -69,7 +70,7 @@ def query_and_fetch(query, model, top_n=12):
                         url_text.append(fetched_data[3])
                         if len(url_details) == top_n:
                             break
-
+                        url_image.append(driver.get_screenshot_as_base64())
                     # Infinite Scroll
                     if len(url_details) < top_n:
                         driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -88,6 +89,7 @@ def query_and_fetch(query, model, top_n=12):
         model = models[model]
         model['url_text'] = url_text
         model['url_details'] = url_details
+        model['url_image'] = url_image
         model.save()
     except DocumentNotFoundError as error:
         print(error)
