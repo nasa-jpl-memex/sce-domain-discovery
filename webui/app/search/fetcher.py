@@ -41,10 +41,16 @@ class Fetcher(object):
 
     @staticmethod
     def new_selenium_driver(timeout=10):
-        wd = os.getenv('WEBDRIVER_URL', "http://sce-firefox:30499/wd/hub")
+        #wd = os.getenv('WEBDRIVER_URL', "http://sce-firefox:30499/wd/hub")
+        wd = os.getenv('WEBDRIVER_URL', "http://sce-chrome:3000/webdriver")
         print("WEBDRIVER URL is "+ wd)
+        desired_capabilities = DesiredCapabilities.CHROME
+        desired_capabilities['chromeOptions'] = {
+            "args": ["--disable-extensions","--headless","--no-sandbox"],
+            "extensions": []
+        }
         driver = webdriver.Remote(command_executor=wd,
-                                      desired_capabilities=DesiredCapabilities.FIREFOX)
+                                      desired_capabilities=desired_capabilities)
         #driver.set_page_load_timeout(timeout)
         return driver
 

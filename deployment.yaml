@@ -55,6 +55,30 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: sce-chrome
+  labels:
+    app: sce-chrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-chrome
+  template:
+    metadata:
+      labels:
+        app: sce-chrome
+    spec:
+      containers:
+      - name: sce-chrome
+        image: browserless/chrome
+        ports:
+        - name: http
+          containerPort: 3000
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: sce-api
   labels:
     app: sce-api
@@ -121,4 +145,18 @@ spec:
     targetPort: 8983
   selector:
     app: sce-solr
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: sce-chrome
+spec:
+  ports:
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: sce-chrome
   type: NodePort
