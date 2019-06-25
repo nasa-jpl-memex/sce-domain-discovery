@@ -72,8 +72,8 @@ def query_and_fetch(query, model, top_n=12):
                         details['image'] = driver.get_screenshot_as_base64()
                         url_details.append(details)
                         url_text.append(fetched_data[3])
-                        print("url details: " + ' '.join(url_details))
-                        print("top_n: "+top_n)
+                        print("url details: " + str(len(url_details)))
+                        print("top_n: "+str(top_n))
                         if len(url_details) == top_n:
                             break
                     # Infinite Scroll
