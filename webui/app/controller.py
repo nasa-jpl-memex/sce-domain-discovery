@@ -89,7 +89,7 @@ def crawl_status(model):
     token = ""
     if f.mode == 'r':
         token = f.read()
-    r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods'+model+'/status', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     return r.json()
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
