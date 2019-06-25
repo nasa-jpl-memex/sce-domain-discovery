@@ -66,7 +66,9 @@ def query_and_fetch(query, model, top_n=12):
                         details['html'] = fetched_data[1]
                         details['title'] = fetched_data[2]
                         details['label'] = predict(model, fetched_data[3])
+                        print("Getting "+fetched_data[0])
                         driver.get(fetched_data[0])
+                        print("Fetching image")
                         details['image'] = driver.get_screenshot_as_base64()
                         url_details.append(details)
                         url_text.append(fetched_data[3])
