@@ -97,7 +97,7 @@ spec:
         image: registry.gitlab.com/sparkler-crawl-environment/memex-dd:memex-dd
         env:
         - name: WEBDRIVER_URL
-          value: "http://sce-firefox:4444/wd/hub"
+          value: "http://sce-chrome:3000/webdriver"
         ports:
         - name: http
           containerPort: 5000

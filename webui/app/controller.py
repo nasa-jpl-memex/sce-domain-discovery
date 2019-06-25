@@ -83,7 +83,14 @@ def start_crawl(model):
     requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     return "crawl started"
 
-
+@mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
+def crawl_status(model):
+    f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    token = ""
+    if f.mode == 'r':
+        token = f.read()
+    r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods'+model+'/status', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+    return r.json()
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
