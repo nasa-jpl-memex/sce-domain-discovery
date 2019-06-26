@@ -117,7 +117,7 @@ spec:
     targetPort: 5000
   selector:
     app: sce-api
-  type: LoadBalancer
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service

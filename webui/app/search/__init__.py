@@ -57,7 +57,7 @@ def query_and_fetch(query, model, top_n=12):
                         urls.append(new_url)
 
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
-                    print("Looping: "+len(fetched_result) +"times")
+                    print("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
                         if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                             continue
