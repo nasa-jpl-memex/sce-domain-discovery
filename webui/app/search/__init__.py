@@ -59,6 +59,7 @@ def query_and_fetch(query, model, top_n=12):
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
                     print("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
+                        driver = Fetcher.get_selenium_driver(30)
                         if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                             continue
                         details = dict()

@@ -51,6 +51,8 @@ class Fetcher(object):
         }
         driver = webdriver.Remote(command_executor=wd,
                                       desired_capabilities=desired_capabilities)
+        driver.implicitly_wait(60)
+        driver.set_page_load_timeout(60)
         #driver.set_page_load_timeout(timeout)
         return driver
 
