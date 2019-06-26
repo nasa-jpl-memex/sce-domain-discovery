@@ -1,4 +1,5 @@
 from pyArango.theExceptions import DocumentNotFoundError
+from selenium.common.exceptions import TimeoutException
 
 from fetcher import Fetcher
 from app.classifier import predict
@@ -59,31 +60,36 @@ def query_and_fetch(query, model, top_n=12):
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
                     print("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
-                        driver = Fetcher.get_selenium_driver(30)
-                        if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
+                        try:
+                            driver = Fetcher.get_selenium_driver(30)
+                            if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
+                                continue
+                            details = dict()
+                            details['url'] = fetched_data[0]
+                            details['html'] = fetched_data[1]
+                            details['title'] = fetched_data[2]
+                            details['label'] = predict(model, fetched_data[3])
+                            print("Getting "+fetched_data[0])
+                            driver.get(fetched_data[0])
+                            print("Fetching image")
+                            details['image'] = driver.get_screenshot_as_base64()
+                            url_details.append(details)
+                            url_text.append(fetched_data[3])
+                            print("url details: " + str(len(url_details)))
+                            print("top_n: "+str(top_n))
+                            if len(url_details) == top_n:
+                                break
+                        except TimeoutException as e:
+                            print("catching timeout exception: "+e)
                             continue
-                        details = dict()
-                        details['url'] = fetched_data[0]
-                        details['html'] = fetched_data[1]
-                        details['title'] = fetched_data[2]
-                        details['label'] = predict(model, fetched_data[3])
-                        print("Getting "+fetched_data[0])
-                        driver.get(fetched_data[0])
-                        print("Fetching image")
-                        details['image'] = driver.get_screenshot_as_base64()
-                        url_details.append(details)
-                        url_text.append(fetched_data[3])
-                        print("url details: " + str(len(url_details)))
-                        print("top_n: "+str(top_n))
-                        if len(url_details) == top_n:
-                            break
-                    # Infinite Scroll
-                    if len(url_details) < top_n:
-                        driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                        results = driver.find_elements_by_class_name('result__a')
-                        results = results[result_size:]
-                        result_size = len(results)
-                        print('Moved to Next Page. Result Size: ' + str(result_size))
+                        # Infinite Scroll
+                        if len(url_details) < top_n:
+                            driver = Fetcher.get_selenium_driver(30)
+                            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                            results = driver.find_elements_by_class_name('result__a')
+                            results = results[result_size:]
+                            result_size = len(results)
+                            print('Moved to Next Page. Result Size: ' + str(result_size))
         except Exception as e:
             print(e)
             print('An error occurred while searching query: '+ query + ' and fetching results')
