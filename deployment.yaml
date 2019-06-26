@@ -79,6 +79,30 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: sce-chrome-screenshot
+  labels:
+    app: sce-chrome-screenshot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-chrome-screenshots
+  template:
+    metadata:
+      labels:
+        app: sce-chrome-screenshots
+    spec:
+      containers:
+      - name: sce-chrome-screenshots
+        image: browserless/chrome
+        ports:
+        - name: http
+          containerPort: 3000
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: sce-api
   labels:
     app: sce-api
@@ -159,4 +183,18 @@ spec:
     targetPort: 3000
   selector:
     app: sce-chrome
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: sce-chrome-screenshots
+spec:
+  ports:
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: sce-chrome-screenshots
   type: NodePort

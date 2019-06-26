@@ -12,7 +12,7 @@ class Fetcher(object):
     """Fetching Capability using Selenium"""
 
     search_driver = None
-
+    screenshot_driver = None
     @staticmethod
     def cleantext(soup):
         for script in soup(["script", "style"]):
@@ -25,24 +25,35 @@ class Fetcher(object):
         return text.encode('utf-8')
 
     @staticmethod
-    def get_selenium_driver(timeout=10):
-        if Fetcher.search_driver is not None:
+    def get_selenium_driver(timeout=10, screenshots=False):
+        driver = None
+        if not screenshots and Fetcher.search_driver is not None:
             driver = Fetcher.search_driver
+        elif screenshots and Fetcher.screenshot_driver is not None:
+            driver = Fetcher.screenshot_driver
+
+        if driver is not None:
             try:
                 driver.get("http://www.example.com/")
                 return driver
             except Exception as e:
                 print('Selenium driver seems to have crashed, creating a new one {}'.format(str(e)))
-                return Fetcher.new_selenium_driver()
+                return Fetcher.new_selenium_driver(screenshots)
 
         else:
-            Fetcher.search_driver = Fetcher.new_selenium_driver()
+            if screenshots:
+                Fetcher.screenshot_driver = Fetcher.new_selenium_driver(screenshots)
+            else:
+                Fetcher.search_driver = Fetcher.new_selenium_driver(screenshots)
             return Fetcher.search_driver
 
     @staticmethod
-    def new_selenium_driver(timeout=10):
-        #wd = os.getenv('WEBDRIVER_URL', "http://sce-firefox:30499/wd/hub")
-        wd = os.getenv('WEBDRIVER_URL', "http://sce-chrome:3000/webdriver")
+    def new_selenium_driver(screenshots, timeout=10):
+        if screenshots:
+            wd = os.getenv('WEBDRIVER_URL_SCREENSHOTS', "http://sce-chrome-screenshots:3000/webdriver")
+        else:
+            wd = os.getenv('WEBDRIVER_URL', "http://sce-chrome:3000/webdriver")
+
         print("WEBDRIVER URL is "+ wd)
         desired_capabilities = DesiredCapabilities.CHROME
         desired_capabilities['chromeOptions'] = {

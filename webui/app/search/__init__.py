@@ -61,7 +61,7 @@ def query_and_fetch(query, model, top_n=12):
                     print("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
                         try:
-                            driver = Fetcher.get_selenium_driver(30)
+                            driver = Fetcher.get_selenium_driver(True, 30)
                             if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                                 continue
                             details = dict()
@@ -82,7 +82,7 @@ def query_and_fetch(query, model, top_n=12):
                         except TimeoutException as e:
                             print("catching timeout exception: "+e)
                             continue
-                        # Infinite Scroll
+                        # Infinite Scroll // WONT WORK BECAUSE WE CHANGE SCREENS
                         if len(url_details) < top_n:
                             driver = Fetcher.get_selenium_driver(30)
                             driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
