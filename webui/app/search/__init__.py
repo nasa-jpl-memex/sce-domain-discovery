@@ -79,8 +79,8 @@ def query_and_fetch(query, model, top_n=12):
                             print("top_n: "+str(top_n))
                             if len(url_details) == top_n:
                                 break
-                        except TimeoutException as e:
-                            print("catching timeout exception: "+e)
+                        except:
+                            print("catching timeout exception")
                             continue
                         # Infinite Scroll // WONT WORK BECAUSE WE CHANGE SCREENS
                         # if len(url_details) < top_n:
