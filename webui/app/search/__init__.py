@@ -73,7 +73,7 @@ def query_and_fetch(query, model, top_n=12):
                             print("Getting "+fetched_data[0])
                             print("Fetching image")
                             print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
-                            details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240").content)
+                            details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
                             url_details.append(details)
                             url_text.append(fetched_data[3])
                             print("url details: " + str(len(url_details)))
