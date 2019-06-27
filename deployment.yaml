@@ -55,6 +55,30 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: sce-splash
+  labels:
+    app: sce-splash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-splash
+  template:
+    metadata:
+      labels:
+        app: sce-splash
+    spec:
+      containers:
+      - name: sce-splash
+        image: scrapinghub/splash
+        ports:
+        - name: http
+          containerPort: 8050
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: sce-chrome
   labels:
     app: sce-chrome
@@ -197,4 +221,18 @@ spec:
     targetPort: 3000
   selector:
     app: sce-chrome-screenshots
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: sce-splash
+spec:
+  ports:
+  - name: http
+    port: 8050
+    protocol: TCP
+    targetPort: 8050
+  selector:
+    app: sce-splash
   type: NodePort

@@ -1,3 +1,5 @@
+import base64
+
 from pyArango.theExceptions import DocumentNotFoundError
 from selenium.common.exceptions import TimeoutException
 
@@ -61,7 +63,6 @@ def query_and_fetch(query, model, top_n=12):
                     print("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
                         try:
-                            driver = Fetcher.get_selenium_driver(True, 30)
                             if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                                 continue
                             details = dict()
@@ -70,9 +71,9 @@ def query_and_fetch(query, model, top_n=12):
                             details['title'] = fetched_data[2]
                             details['label'] = predict(model, fetched_data[3])
                             print("Getting "+fetched_data[0])
-                            driver.get(fetched_data[0])
                             print("Fetching image")
-                            details['image'] = driver.get_screenshot_as_base64()
+                            print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
+                            details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240").content)
                             url_details.append(details)
                             url_text.append(fetched_data[3])
                             print("url details: " + str(len(url_details)))
