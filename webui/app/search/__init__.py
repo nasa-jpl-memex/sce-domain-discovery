@@ -83,13 +83,13 @@ def query_and_fetch(query, model, top_n=12):
                             print("catching timeout exception: "+e)
                             continue
                         # Infinite Scroll // WONT WORK BECAUSE WE CHANGE SCREENS
-                        if len(url_details) < top_n:
-                            driver = Fetcher.get_selenium_driver(30)
-                            driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                            results = driver.find_elements_by_class_name('result__a')
-                            results = results[result_size:]
-                            result_size = len(results)
-                            print('Moved to Next Page. Result Size: ' + str(result_size))
+                        # if len(url_details) < top_n:
+                        #     driver = Fetcher.get_selenium_driver(30)
+                        #     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                        #     results = driver.find_elements_by_class_name('result__a')
+                        #     results = results[result_size:]
+                        #     result_size = len(results)
+                        #     print('Moved to Next Page. Result Size: ' + str(result_size))
         except Exception as e:
             print(e)
             print('An error occurred while searching query: '+ query + ' and fetching results')
