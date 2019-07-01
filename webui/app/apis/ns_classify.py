@@ -34,7 +34,7 @@ class Predict(Resource):
         }
         result = -1
         data = request.data
-        print (data)
+        print ("request data"+ data)
         d = json.loads(data)
         if len(data) != 0:
             content = d['content']

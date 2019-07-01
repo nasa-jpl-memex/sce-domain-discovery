@@ -92,12 +92,12 @@ def start_crawl(model):
         requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
         return "crawl started"
     else:
-        print("Pulling container")
-        pcmd = ["docker", "pull", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"]
-        subprocess.run(pcmd)
+        print("Removing old container")
+        pcmd = ["docker", "rm", model+"seed"]
+        subprocess.call(pcmd)
         print("Running container")
-        pcmd = ["docker", "run", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "--name", model+"crawl"] + cmd
-        subprocess.run(pcmd)
+        qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"crawl", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
+        subprocess.call(qcmd)
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
 def stop_crawl(model):
@@ -110,7 +110,9 @@ def stop_crawl(model):
         requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
 
         return "crawl ended"
-
+    else:
+        qcmd = ["docker", "stop", model+"crawl"]
+        subprocess.call(qcmd)
 
 @mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
 def crawl_status(model):
@@ -121,6 +123,8 @@ def crawl_status(model):
             token = f.read()
         r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
         return jsonify(r.json())
+
+
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
@@ -133,7 +137,9 @@ def kill_crawl_gracefully(model):
         requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
 
         return "crawl killed"
-
+    else:
+        qcmd = ["docker", "stop", model+"crawl"]
+        subprocess.call(qcmd)
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
@@ -146,6 +152,9 @@ def force_kill_crawl(model):
         requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
 
         return "crawl killed"
+    else:
+        qcmd = ["docker", "stop", model+"crawl"]
+        subprocess.call(qcmd)
 
 
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
@@ -170,4 +179,7 @@ def upload_seed(model):
         requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
         return "seed urls uploaded"
     else:
-        pcmd = ["docker", "run", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
+        pcmd = ["docker", "rm", model+"seed"]
+        qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
+        subprocess.call(pcmd)
+        subprocess.call(qcmd)
