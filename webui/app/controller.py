@@ -2,10 +2,15 @@ import requests
 from app import classifier
 from flask import Blueprint, request, send_from_directory, jsonify
 from flask_cors import CORS
+import os
+import subprocess
 
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
 CORS(mod_app)
+
+k8s = bool(os.getenv('RUNNING_KUBERNETES', 'true'))
+
 
 # Define Controller(s)
 @mod_app.route('/')
@@ -70,53 +75,77 @@ def check_crawl_exists(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
-    f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
-    token =""
-    if f.mode == 'r':
-        token =f.read()
-
-    requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     cmd = ["/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
-    json = {"kind": "Pod", "apiVersion": "v1",
-            "metadata": {"name": model+"crawl", "labels": {"run": model+"seed"}}, "spec": {
-            "containers": [
-                {"name": model+"crawl", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
-                 "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
-    return "crawl started"
 
+    if k8s:
+        f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token =""
+        if f.mode == 'r':
+            token =f.read()
+
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        json = {"kind": "Pod", "apiVersion": "v1",
+                "metadata": {"name": model+"crawl", "labels": {"run": model+"seed"}}, "spec": {
+                "containers": [
+                    {"name": model+"crawl", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
+                     "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
+        requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        return "crawl started"
+    else:
+        print("Pulling container")
+        pcmd = ["docker", "pull", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"]
+        subprocess.run(pcmd)
+        print("Running container")
+        pcmd = ["docker", "run", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "--name", model+"crawl"] + cmd
+        subprocess.run(pcmd)
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
 def stop_crawl(model):
-    f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
-    token =""
-    if f.mode == 'r':
-        token =f.read()
+    if k8s:
+        f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token =""
+        if f.mode == 'r':
+            token =f.read()
 
-    requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
 
-    return "crawl ended"
+        return "crawl ended"
 
 
 @mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
 def crawl_status(model):
-    f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
-    token = ""
-    if f.mode == 'r':
-        token = f.read()
-    r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
-    return jsonify(r.json())
+    if k8s:
+        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token = ""
+        if f.mode == 'r':
+            token = f.read()
+        r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        return jsonify(r.json())
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
-    requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
-    return "crawl killed"
+    if k8s:
+        f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token =""
+        if f.mode == 'r':
+            token =f.read()
+
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+
+        return "crawl killed"
 
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
-    requests.delete("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/"+model+"crawl")
-    return "crawl killed"
+    if k8s:
+        f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token =""
+        if f.mode == 'r':
+            token =f.read()
+
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl", headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+
+        return "crawl killed"
 
 
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
@@ -126,19 +155,19 @@ def upload_seed(model):
     classifier.save_seeds(model, request.get_data())
     seeds =  request.get_data().splitlines()
     urls = ",".join(seeds)
-
-    f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
-    token =""
-    if f.mode == 'r':
-        token =f.read()
-    requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"seed",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id", model]
-    json = {"kind": "Pod", "apiVersion": "v1",
-             "metadata": {"name": model+"seed", "labels": {"run": model+"seed"}}, "spec": {
-            "containers": [
-                {"name": model+"seed", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
-                 "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-    requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
-    return "seed urls uploaded"
-
-
+    if k8s:
+        f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+        token =""
+        if f.mode == 'r':
+            token =f.read()
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"seed",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        json = {"kind": "Pod", "apiVersion": "v1",
+                 "metadata": {"name": model+"seed", "labels": {"run": model+"seed"}}, "spec": {
+                "containers": [
+                    {"name": model+"seed", "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd", "command": cmd,
+                     "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
+        requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json, headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
+        return "seed urls uploaded"
+    else:
+        pcmd = ["docker", "run", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd

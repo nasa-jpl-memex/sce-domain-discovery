@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y maven emacs-nox
 COPY . /projects/sce-domain-discovery/
 
 RUN apt-get install -y python && \
-    apt-get install -y python-setuptools python-pip python-dev build-essential
+    apt-get install -y python-setuptools python-pip python-dev build-essential docker.io
 
 WORKDIR /projects/sce-domain-discovery/webui
 RUN pip install -r requirements.txt
