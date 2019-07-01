@@ -236,3 +236,43 @@ spec:
   selector:
     app: sce-splash
   type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sce-ui
+  labels:
+    app: sce-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sce-ui
+  template:
+    metadata:
+      labels:
+        app: sce-ui
+    spec:
+      containers:
+      - name: sce-ui
+        image: registry.gitlab.com/sparkler-crawl-environment/sce-ui:latest
+        ports:
+        - name: http
+          containerPort: 80
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: gitlab-registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: sce-ui
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: sce-ui
+  type: NodePort

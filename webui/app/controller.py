@@ -74,6 +74,8 @@ def start_crawl(model):
     token =""
     if f.mode == 'r':
         token =f.read()
+
+    requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"crawl",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     cmd = ["/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
     json = {"kind": "Pod", "apiVersion": "v1",
             "metadata": {"name": model+"crawl", "labels": {"run": model+"seed"}}, "spec": {
@@ -116,6 +118,7 @@ def upload_seed(model):
     token =""
     if f.mode == 'r':
         token =f.read()
+    requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/'+model+"seed",headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
     cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id", model]
     json = {"kind": "Pod", "apiVersion": "v1",
              "metadata": {"name": model+"seed", "labels": {"run": model+"seed"}}, "spec": {
