@@ -35,7 +35,7 @@ class Predict(Resource):
         result = -1
         data = request.data
         print ("request data"+ data)
-        d = json.loads(data)
+        d = json.loads(data.decode("utf-8","ignore"))
         if len(data) != 0:
             content = d['score'][0]['content']
             model = d['score'][0]['model']
