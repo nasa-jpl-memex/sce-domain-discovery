@@ -147,7 +147,7 @@ def get_metrics(model):
 def predict(m, txt):
 
     model = models[m]
-    print("Creating Prediction Model")
+    print("Creating Prediction Model, looking for: "+m)
     print(model)
     if model is None:
         print("Model not found")
