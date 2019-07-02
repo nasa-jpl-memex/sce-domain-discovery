@@ -93,7 +93,7 @@ def start_crawl(model):
         return "crawl started"
     else:
         print("Removing old container")
-        pcmd = ["docker", "rm", model+"seed"]
+        pcmd = ["docker", "rm", model+"crawl"]
         subprocess.call(pcmd)
         print("Running container")
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"crawl", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
