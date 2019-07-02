@@ -146,12 +146,14 @@ def get_metrics(model):
 
 def predict(m, txt):
 
-
-    #model = getattr(flask.current_app, 'model', None)
     model = models[m]
+    print("Creating Prediction Model")
+    print(model)
     if model is None:
+        print("Model not found")
         return -1
     elif model['countvectorizer'] is None:
+        print("No Count Vectorizer")
         return -1
 
     count_vect = loads(base64.decodestring(model['countvectorizer']))
@@ -162,6 +164,7 @@ def predict(m, txt):
     features=tfidftransformer.transform(features).toarray().astype(np.float64)
 
     predicted = clf.predict(features)
+    print("Prediction")
     print(predicted)
     return predicted[0]
 
