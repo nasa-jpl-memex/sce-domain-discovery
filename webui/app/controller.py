@@ -9,7 +9,7 @@ import subprocess
 mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
 CORS(mod_app)
 
-k8s = bool(os.getenv('RUNNING_KUBERNETES', 'true'))
+k8s = os.getenv('RUNNING_KUBERNETES', 'true')
 
 
 # Define Controller(s)
@@ -77,7 +77,7 @@ def check_crawl_exists(model):
 def start_crawl(model):
     cmd = ["/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
 
-    if k8s:
+    if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
         if f.mode == 'r':
@@ -101,7 +101,7 @@ def start_crawl(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
 def stop_crawl(model):
-    if k8s:
+    if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
         if f.mode == 'r':
@@ -116,7 +116,7 @@ def stop_crawl(model):
 
 @mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
 def crawl_status(model):
-    if k8s:
+    if k8s.lower() == "true":
         f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
         if f.mode == 'r':
@@ -128,7 +128,7 @@ def crawl_status(model):
 
 @mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
-    if k8s:
+    if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
         if f.mode == 'r':
@@ -143,7 +143,7 @@ def kill_crawl_gracefully(model):
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
-    if k8s:
+    if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
         if f.mode == 'r':
@@ -165,7 +165,7 @@ def upload_seed(model):
     seeds =  request.get_data().splitlines()
     urls = ",".join(seeds)
     cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id", model]
-    if k8s:
+    if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
         if f.mode == 'r':
