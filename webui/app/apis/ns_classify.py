@@ -37,7 +37,7 @@ class Predict(Resource):
         print ("request data"+ data)
         d = json.loads(data)
         if len(data) != 0:
-            content = d['content']
-            model = d['model']
+            content = d['score']['content']
+            model = d['score']['model']
             result = classifier.predict(model, content)
         return classes[result]
