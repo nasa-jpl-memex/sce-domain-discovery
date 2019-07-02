@@ -125,6 +125,14 @@ def crawl_status(model):
             token = f.read()
         r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', headers={"content-type":"application/json", "Authorization": "Bearer "+token}, verify=False)
         return jsonify(r.json())
+    else:
+        qcmd = ["docker", "container", "ls", "--filter", "name="+model]
+        o = subprocess.check_output(qcmd)
+
+        if model in o.decode("utf-8"):
+            return jsonify({"running": "true"})
+        else:
+            return jsonify({"running": "false"})
 
 
 

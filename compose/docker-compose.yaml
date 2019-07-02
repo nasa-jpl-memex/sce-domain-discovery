@@ -37,6 +37,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock    
 
+  sce-ui:
+    image: registry.gitlab.com/sparkler-crawl-environment/sce-ui:latest
+    ports:
+      - "8080:80"
+    
 volumes:
  data:
  db:
