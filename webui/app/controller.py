@@ -98,6 +98,7 @@ def start_crawl(model):
         print("Running container")
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"crawl", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
         subprocess.call(qcmd)
+        return "crawl started"
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
 def stop_crawl(model):
@@ -113,6 +114,7 @@ def stop_crawl(model):
     else:
         qcmd = ["docker", "stop", model+"crawl"]
         subprocess.call(qcmd)
+        return "crawl ended"
 
 @mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
 def crawl_status(model):
@@ -140,6 +142,7 @@ def kill_crawl_gracefully(model):
     else:
         qcmd = ["docker", "stop", model+"crawl"]
         subprocess.call(qcmd)
+        return "crawl killed"
 
 @mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
@@ -155,6 +158,7 @@ def force_kill_crawl(model):
     else:
         qcmd = ["docker", "stop", model+"crawl"]
         subprocess.call(qcmd)
+        return "crawl killed"
 
 
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
@@ -183,3 +187,4 @@ def upload_seed(model):
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
         subprocess.call(pcmd)
         subprocess.call(qcmd)
+        return "seed urls uploaded"
