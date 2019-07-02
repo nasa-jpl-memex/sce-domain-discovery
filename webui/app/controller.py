@@ -97,7 +97,7 @@ def start_crawl(model):
         subprocess.call(pcmd)
         print("Running container")
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"crawl", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
-        subprocess.call(qcmd)
+        subprocess.Popen(qcmd)
         return "crawl started"
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
@@ -194,5 +194,5 @@ def upload_seed(model):
         pcmd = ["docker", "rm", model+"seed"]
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model+"seed", "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
         subprocess.call(pcmd)
-        subprocess.call(qcmd)
+        subprocess.Popen(qcmd)
         return "seed urls uploaded"
