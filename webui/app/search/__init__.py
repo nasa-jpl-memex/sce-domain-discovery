@@ -25,19 +25,16 @@ if not db.hasCollection('models'):
 else:
     models = db.collections['models']
 
-def query_and_fetch(query, model, top_n=12):
-    """Query Duck Duck Go (DDG) for top n results"""
-    global url_details, url_text
-    print('Query: ' + query + '; Top N: ' + str(top_n))
-    url_details = []
-    url_text = []
-    url_image = []
-    driver = None
+def get_url_window(query, top_n, page):
     bad_request = False
+
+    start_pos = top_n * (page-1)
+    end_pos = start_pos+top_n
+
     try:
         driver = Fetcher.get_selenium_driver()
-        driver.get('https://duckduckgo.com/html/?q=' + query + '&kl=wt-wt')
-
+        #driver.get('https://duckduckgo.com/html/?q=' + query + '&kl=wt-wt')
+        driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
     except:
         print('An error occurred while searching query: ' + query)
         print traceback.format_exc()
@@ -49,6 +46,50 @@ def query_and_fetch(query, model, top_n=12):
         try:
             if not bad_request:
                 results = driver.find_elements_by_class_name('result__a')
+                result_size = len(results)
+                prev_length = 0
+                t = 0
+                while result_size < end_pos:
+                    #driver = Fetcher.get_selenium_driver(30)
+                    driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                    results = driver.find_elements_by_class_name('result__a')
+                    #results = results+next_results
+                    result_size = len(results)
+                    if result_size == prev_length:
+                        t=t+1
+                        if t == 4:
+                            break;
+                    else:
+                        prev_length = result_size
+
+                    print('Moved to Next Page. Result Size: ' + str(result_size))
+                return results[start_pos:end_pos]
+        except Exception as e:
+            print(e)
+            print('An error occurred while searching query: '+ query + ' and fetching results')
+
+def query_and_fetch(query, model, top_n=12, page=1):
+    """Query Duck Duck Go (DDG) for top n results"""
+    global url_details, url_text
+    print('Query: ' + query + '; Top N: ' + str(top_n))
+    url_details = []
+    url_text = []
+    url_image = []
+    driver = None
+    bad_request = False
+    try:
+        results = get_url_window(query,top_n, page)
+
+    except:
+        print('An error occurred while searching query: ' + query)
+        print traceback.format_exc()
+        Fetcher.close_selenium_driver(driver)
+        Fetcher.search_driver = None
+        bad_request = True
+
+    finally:
+        try:
+            if not bad_request:
                 result_size = len(results)
                 print('Result Size: ' + str(result_size))
                 while result_size > 0 and len(url_details) < top_n:
@@ -83,14 +124,6 @@ def query_and_fetch(query, model, top_n=12):
                         except:
                             print("catching timeout exception")
                             continue
-                        # Infinite Scroll // WONT WORK BECAUSE WE CHANGE SCREENS
-                        # if len(url_details) < top_n:
-                        #     driver = Fetcher.get_selenium_driver(30)
-                        #     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                        #     results = driver.find_elements_by_class_name('result__a')
-                        #     results = results[result_size:]
-                        #     result_size = len(results)
-                        #     print('Moved to Next Page. Result Size: ' + str(result_size))
         except Exception as e:
             print(e)
             print('An error occurred while searching query: '+ query + ' and fetching results')
