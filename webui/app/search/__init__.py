@@ -50,10 +50,8 @@ def get_url_window(query, top_n, page):
                 prev_length = 0
                 t = 0
                 while result_size < end_pos:
-                    #driver = Fetcher.get_selenium_driver(30)
                     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
                     results = driver.find_elements_by_class_name('result__a')
-                    #results = results+next_results
                     result_size = len(results)
                     if result_size == prev_length:
                         t=t+1
@@ -111,14 +109,14 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             details['html'] = fetched_data[1]
                             details['title'] = fetched_data[2]
                             details['label'] = predict(model, fetched_data[3])
-                            print("Getting "+fetched_data[0])
-                            print("Fetching image")
-                            print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
-                            details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
+                            print("Fetching image for " +fetched_data[0])
+                            try:
+                                print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
+                                details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
+                            except Exception:
+                                continue
                             url_details.append(details)
                             url_text.append(fetched_data[3])
-                            print("url details: " + str(len(url_details)))
-                            print("top_n: "+str(top_n))
                             if len(url_details) == top_n:
                                 break
                         except:
