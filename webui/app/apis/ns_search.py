@@ -27,8 +27,9 @@ class Search(Resource):
 
 @api.route('/<model>/<query>/<page>')
 @api.param('query', 'Query string to search')
-class Search(Resource):
-    @api.doc('search')
+@api.param('page', 'Results Page')
+class SearchPaginated(Resource):
+    @api.doc('searchpaginated')
     @cors.crossdomain(origin='*')
     def get(self, model, query, page):
         """Search Duck Duck Go"""
