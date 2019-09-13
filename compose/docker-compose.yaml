@@ -12,6 +12,13 @@ services:
     image: browserless/chrome
     ports:
       - 3000:3000
+    environment:
+        - CONNECTION_TIMEOUT=60000
+        - MAX_QUEUE_LENGTH=10
+        - PREBOOT_CHROME=true
+        - DEBUG=browserless/chrome*
+        - KEEP_ALIVE=true
+        - MAX_CONCURRENT_SESSIONS=3
   sce-solr:
     image: registry.gitlab.com/sparkler-crawl-environment/sparkler/solr:memex-dd
     ports:
