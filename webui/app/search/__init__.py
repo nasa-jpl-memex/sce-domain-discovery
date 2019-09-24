@@ -10,6 +10,7 @@ from pyArango.connection import *
 import os
 from flask import current_app as app
 import logging
+from bs4 import BeautifulSoup
 
 logging.basicConfig(level=logging.DEBUG)
 url_details = []
@@ -34,37 +35,41 @@ def get_url_window(query, top_n, page):
     start_pos = top_n * (page-1)
     end_pos = start_pos+top_n
 
+    output = ""
     try:
         app.logger.info('Processing get url request '+ query)
-        driver = Fetcher.get_selenium_driver()
-        driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
+        #driver = Fetcher.get_selenium_driver()
+        #driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
+        output = requests.get("http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%3Darctic%20policy%20national%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5").content
     except:
         app.logger.info('An error occurred while searching query: ' + query)
         app.logger.info(traceback.format_exc())
-        Fetcher.close_selenium_driver(driver)
-        Fetcher.search_driver = None
+        #Fetcher.close_selenium_driver(driver)
+        #Fetcher.search_driver = None
         bad_request = True
 
     finally:
         try:
             if not bad_request:
-                results = driver.find_elements_by_class_name('result__a')
+                #results = driver.find_elements_by_class_name('result__a')
+                soup = BeautifulSoup(output, 'html.parser')
+                results = soup.findAll("a", {"class": "result__a"})
                 result_size = len(results)
-                app.logger.info('Results Found '+ str(result_size))
+                app.logger.info('Results Found ' + str(result_size))
                 prev_length = 0
                 t = 0
-                while result_size < end_pos:
-                    driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-                    results = driver.find_elements_by_class_name('result__a')
-                    result_size = len(results)
-                    if result_size == prev_length:
-                        t=t+1
-                        if t == 4:
-                            break;
-                    else:
-                        prev_length = result_size
-
-                    print('Moved to Next Page. Result Size: ' + str(result_size))
+                # while result_size < end_pos:
+                #     driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+                #     results = driver.find_elements_by_class_name('result__a')
+                #     result_size = len(results)
+                #     if result_size == prev_length:
+                #         t=t+1
+                #         if t == 4:
+                #             break;
+                #     else:
+                #         prev_length = result_size
+                #
+                #     print('Moved to Next Page. Result Size: ' + str(result_size))
                 return results[start_pos:end_pos]
         except Exception as e:
             app.logger.info(e)
@@ -85,8 +90,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
     except:
         app.logger.info('An error occurred while searching query: ' + query)
         app.logger.info(traceback.format_exc())
-        Fetcher.close_selenium_driver(driver)
-        Fetcher.search_driver = None
+        #Fetcher.close_selenium_driver(driver)
+        #Fetcher.search_driver = None
         bad_request = True
 
     finally:
@@ -98,7 +103,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
                 while result_size > 0 and len(url_details) < top_n:
                     urls = []
                     for element in results:
-                        new_url = element.get_attribute('href')
+                        new_url = element['href']
                         # TODO: Filter URLs if required
                         print(new_url)
                         app.logger.info('Adding URL ' + new_url)
