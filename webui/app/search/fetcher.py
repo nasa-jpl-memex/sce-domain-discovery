@@ -130,6 +130,22 @@ class Fetcher(object):
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
 
     @staticmethod
+    def read_url2(url):
+        try:
+            #res = urlopen(url)
+            #data = res.read()
+            data = requests.get(url).content
+            print('Fetched %s from %s' % (len(data), url))
+            #if res.headers.getparam('charset').lower() != 'utf-8':
+            #    data = data.encode('utf-8')
+            soup = BeautifulSoup(data, 'html.parser')
+            print('Parsed %s from %s' % (len(data), url))
+            return([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])
+        except Exception as e:
+            print(e)
+            print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
+
+    @staticmethod
     def is_alive(threads):
         for t in threads:
             if t.isAlive():
@@ -154,7 +170,10 @@ class Fetcher(object):
 
     @staticmethod
     def fetch_multiple(urls, top_n):
-        result = Fetcher.parallel(urls, top_n)
+        #result = Fetcher.parallel(urls, top_n)
+        result = []
+        for url in urls:
+            result.append(Fetcher.read_url2(url))
         return result
 
     @staticmethod
