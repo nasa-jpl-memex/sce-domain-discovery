@@ -9,7 +9,7 @@ from flask import request, flash
 # from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from pyArango.connection import *
-import base64
+import pickle
 
 accuracy = 0.0
 splits = 2
@@ -118,10 +118,13 @@ def update_model(m, annotations):
     else:
         model['url_details'] = url_details
     model['labeled'] = labeled.tolist()
-    cv = dumps(count_vect,0)
-    model['countvectorizer'] = base64.encodestring(dumps(count_vect,0))
-    model['tfidftransformer'] = base64.encodestring(dumps(tfidftransformer,0))
-    model['clf'] = base64.encodestring(dumps(clf,0))
+    #cv = dumps(count_vect,0)
+    #model['countvectorizer'] = base64.encodestring(dumps(count_vect,0))
+    #model['tfidftransformer'] = base64.encodestring(dumps(tfidftransformer,0))
+    #model['clf'] = base64.encodestring(dumps(clf,0))
+    encoded_model = {'countvectorizer': count_vect, 'tfidtransformer': tfidftransformer, 'clf': clf}
+    with open('/models/'+model['name']+'.pickle', 'wb') as handle:
+        pickle.dump(encoded_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     #setattr(flask.current_app, 'model', model)
     model.save()
     predicted = clf.predict(features)
@@ -147,17 +150,22 @@ def get_metrics(model):
 def predict(m, txt):
 
     model = models[m]
+    encoded_model = None
+    if(os.path.isfile('/models/'+model['name']+'.pickle')):
+        with open('/models/'+model['name']+'.pickle', 'rb') as handle:
+            encoded_model = pickle.load(handle)
+
     print("Creating Prediction Model, looking for: "+m)
     if model is None:
         print("Model not found")
         return -1
-    elif model['countvectorizer'] is None:
+    elif encoded_model['countvectorizer'] is None:
         print("No Count Vectorizer")
         return -1
 
-    count_vect = loads(base64.decodestring(model['countvectorizer']))
-    tfidftransformer = loads(base64.decodestring(model['tfidftransformer']))
-    clf=loads(base64.decodestring(model['clf']))
+    count_vect = encoded_model['countvectorizer']
+    tfidftransformer = encoded_model['tfidftransformer']
+    clf= encoded_model['clf']
 
     features = count_vect.transform([txt])
     features=tfidftransformer.transform(features).toarray().astype(np.float64)

@@ -21,7 +21,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 COPY . /projects/sce-domain-discovery/
 
 WORKDIR /projects/sce-domain-discovery/webui
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt && mkdir /models
 
 CMD ["python", "run.py"]
 

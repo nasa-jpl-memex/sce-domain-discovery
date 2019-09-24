@@ -33,7 +33,6 @@ def get_url_window(query, top_n, page):
 
     try:
         driver = Fetcher.get_selenium_driver()
-        #driver.get('https://duckduckgo.com/html/?q=' + query + '&kl=wt-wt')
         driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
     except:
         print('An error occurred while searching query: ' + query)
@@ -183,8 +182,3 @@ def query(q, top_n=12):
                 Fetcher.close_selenium_driver(driver)
     print('Search Completed')
     return urls
-
-
-#output = query_and_fetch('tesla')
-#for url in output:
-#    print(url)
