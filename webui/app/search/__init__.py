@@ -8,7 +8,10 @@ from app.classifier import predict
 import traceback
 from pyArango.connection import *
 import os
+from flask import current_app as app
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 url_details = []
 url_text = []
 db = None
@@ -32,6 +35,7 @@ def get_url_window(query, top_n, page):
     end_pos = start_pos+top_n
 
     try:
+        app.logger.info('Processing get url request '+ query)
         driver = Fetcher.get_selenium_driver()
         driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
     except:
@@ -46,6 +50,7 @@ def get_url_window(query, top_n, page):
             if not bad_request:
                 results = driver.find_elements_by_class_name('result__a')
                 result_size = len(results)
+                app.logger.info('Results Found '+ result_size)
                 prev_length = 0
                 t = 0
                 while result_size < end_pos:
@@ -89,12 +94,14 @@ def query_and_fetch(query, model, top_n=12, page=1):
             if not bad_request:
                 result_size = len(results)
                 print('Result Size: ' + str(result_size))
+                app.logger.info('Results Found ' + result_size)
                 while result_size > 0 and len(url_details) < top_n:
                     urls = []
                     for element in results:
                         new_url = element.get_attribute('href')
                         # TODO: Filter URLs if required
                         print(new_url)
+                        app.logger.info('Adding URL ' + new_url)
                         urls.append(new_url)
 
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
@@ -109,6 +116,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             details['title'] = fetched_data[2]
                             details['label'] = predict(model, fetched_data[3])
                             print("Fetching image for " +fetched_data[0])
+                            app.logger.info('Fetching image for ' + fetched_data[0])
                             try:
                                 print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
                                 details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
@@ -138,6 +146,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
         raise
 
     print('Search Completed')
+    app.logger.info('Search Completed')
+
     return url_details
 
 

@@ -1,7 +1,7 @@
 # Import flask and template operators
 from flask import Flask
 from app.apis import api
-
+import logging
 from sklearn.externals import joblib
 import os
 
@@ -11,7 +11,7 @@ app = Flask(__name__,
             static_folder='static')
 
 
-
+logging.basicConfig(level=logging.DEBUG)
 
 # Configurations
 app.config.from_object('config')
