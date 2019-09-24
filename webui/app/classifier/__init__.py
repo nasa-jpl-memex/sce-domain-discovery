@@ -10,6 +10,8 @@ from flask import request, flash
 from sklearn.ensemble import RandomForestClassifier
 from pyArango.connection import *
 import pickle
+from flask import current_app as app
+import logging
 
 accuracy = 0.0
 splits = 2
@@ -150,19 +152,29 @@ def get_metrics(model):
 def predict(m, txt):
 
     model = models[m]
-    encoded_model = None
+    encoded_model = {}
+
+    app.logger.info('Predicting '+model['name'])
     if(os.path.isfile('/models/'+model['name']+'.pickle')):
         with open('/models/'+model['name']+'.pickle', 'rb') as handle:
             encoded_model = pickle.load(handle)
 
-    print("Creating Prediction Model, looking for: "+m)
+    #print("Creating Prediction Model, looking for: "+m)
+    app.logger.info('Creating Prediction Model '+model['name'])
+
+    app.logger.info('Sorting Count Vectorizer out')
+    if('countvectorizer' in encoded_model):
+        test = encoded_model['countvectorizer']
+        app.logger.info('CV is '+test)
+    app.logger.info('CV Sorted')
     if model is None:
-        print("Model not found")
+        app.logger.info("Model not found")
         return -1
-    elif encoded_model['countvectorizer'] is None:
-        print("No Count Vectorizer")
+    elif 'countvectorizer' not in encoded_model or encoded_model['countvectorizer'] is None:
+        app.logger.info("No Count Vectorizer")
         return -1
 
+    app.logger.info('Sorting Count Vectorizer out '+model['name'])
     count_vect = encoded_model['countvectorizer']
     tfidftransformer = encoded_model['tfidftransformer']
     clf= encoded_model['clf']
@@ -171,8 +183,8 @@ def predict(m, txt):
     features=tfidftransformer.transform(features).toarray().astype(np.float64)
 
     predicted = clf.predict(features)
-    print("Prediction")
-    print(predicted)
+    app.logger.info("Prediction")
+    app.logger.info(predicted)
     return predicted[0]
 
 def import_model():
