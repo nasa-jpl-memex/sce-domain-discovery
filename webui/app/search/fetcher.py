@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
-from urllib2 import urlopen
+import requests
 import threading
 import Queue
 import re
@@ -103,10 +103,10 @@ class Fetcher(object):
 
     @staticmethod
     def plain(url):
-        res = urlopen(url)
-        html = res.read()
-        if res.headers.getparam('charset').lower() != 'utf-8':
-            html = html.encode('utf-8')
+        #res = urlopen(url)
+        html = requests.get(url).content
+        #if res.headers.getparam('charset').lower() != 'utf-8':
+        #    html = html.encode('utf-8')
         #start = html.find('<title>') + 7  # Add length of <title> tag
         #end = html.find('</title>', start)
         #title = html[start:end]
@@ -116,11 +116,12 @@ class Fetcher(object):
     @staticmethod
     def read_url(url, queue):
         try:
-            res = urlopen(url)
-            data = res.read()
+            #res = urlopen(url)
+            #data = res.read()
+            data = requests.get(url).content
             print('Fetched %s from %s' % (len(data), url))
-            if res.headers.getparam('charset').lower() != 'utf-8':
-                data = data.encode('utf-8')
+            #if res.headers.getparam('charset').lower() != 'utf-8':
+            #    data = data.encode('utf-8')
             soup = BeautifulSoup(data, 'html.parser')
             print('Parsed %s from %s' % (len(data), url))
             queue.put([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])

@@ -8,13 +8,13 @@ services:
         - ARANGO_NO_AUTH=1
     volumes:
       - db:/var/lib/arangodb3
-  sce-chrome:
-    image: browserless/chrome
-    ports:
-      - 3000:3000
-    environment:
-        - CONNECTION_TIMEOUT=160000
-        - MAX_QUEUE_LENGTH=20
+#  sce-chrome:
+#    image: browserless/chrome
+#    ports:
+#      - 3000:3000
+#    environment:
+#        - CONNECTION_TIMEOUT=160000
+#        - MAX_QUEUE_LENGTH=20
         #- PREBOOT_CHROME=true
         #- DEBUG=browserless/chrome*
         #- KEEP_ALIVE=true

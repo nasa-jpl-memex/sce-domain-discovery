@@ -11,6 +11,8 @@ import os
 from flask import current_app as app
 import logging
 from bs4 import BeautifulSoup
+import requests
+
 
 logging.basicConfig(level=logging.DEBUG)
 url_details = []
