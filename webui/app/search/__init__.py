@@ -50,7 +50,7 @@ def get_url_window(query, top_n, page):
             if not bad_request:
                 results = driver.find_elements_by_class_name('result__a')
                 result_size = len(results)
-                app.logger.info('Results Found '+ result_size)
+                app.logger.info('Results Found '+ str(result_size))
                 prev_length = 0
                 t = 0
                 while result_size < end_pos:
@@ -94,7 +94,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
             if not bad_request:
                 result_size = len(results)
                 print('Result Size: ' + str(result_size))
-                app.logger.info('Results Found ' + result_size)
+                app.logger.info('Results Found ' + str(result_size))
                 while result_size > 0 and len(url_details) < top_n:
                     urls = []
                     for element in results:
