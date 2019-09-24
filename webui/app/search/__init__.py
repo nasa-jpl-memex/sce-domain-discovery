@@ -39,8 +39,8 @@ def get_url_window(query, top_n, page):
         driver = Fetcher.get_selenium_driver()
         driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
     except:
-        print('An error occurred while searching query: ' + query)
-        print traceback.format_exc()
+        app.logger.info('An error occurred while searching query: ' + query)
+        app.logger.info(traceback.format_exc())
         Fetcher.close_selenium_driver(driver)
         Fetcher.search_driver = None
         bad_request = True
@@ -67,7 +67,7 @@ def get_url_window(query, top_n, page):
                     print('Moved to Next Page. Result Size: ' + str(result_size))
                 return results[start_pos:end_pos]
         except Exception as e:
-            print(e)
+            app.logger.info(e)
             print('An error occurred while searching query: '+ query + ' and fetching results')
 
 def query_and_fetch(query, model, top_n=12, page=1):
@@ -83,8 +83,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
         results = get_url_window(query,top_n, page)
 
     except:
-        print('An error occurred while searching query: ' + query)
-        print traceback.format_exc()
+        app.logger.info('An error occurred while searching query: ' + query)
+        app.logger.info(traceback.format_exc())
         Fetcher.close_selenium_driver(driver)
         Fetcher.search_driver = None
         bad_request = True
@@ -105,7 +105,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
                         urls.append(new_url)
 
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
-                    print("Looping: "+str(len(fetched_result)) +"times")
+                    app.logger.info("Looping: "+str(len(fetched_result)) +"times")
                     for fetched_data in fetched_result:
                         try:
                             if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
@@ -118,7 +118,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             print("Fetching image for " +fetched_data[0])
                             app.logger.info('Fetching image for ' + fetched_data[0])
                             try:
-                                print("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
+                                app.logger.info("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
                                 details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
                             except Exception:
                                 continue
@@ -130,8 +130,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             print("catching timeout exception")
                             continue
         except Exception as e:
-            print(e)
-            print('An error occurred while searching query: '+ query + ' and fetching results')
+            app.logger.info(e)
+            app.logger.info('An error occurred while searching query: '+ query + ' and fetching results')
         finally:
            if driver is not None:
                Fetcher.close_selenium_driver(driver)
@@ -142,7 +142,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
         model['url_details'] = url_details
         model.save()
     except DocumentNotFoundError as error:
-        print(error)
+        app.logger.info(error)
         raise
 
     print('Search Completed')
