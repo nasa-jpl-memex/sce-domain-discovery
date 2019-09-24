@@ -111,31 +111,31 @@ def query_and_fetch(query, model, top_n=12, page=1):
                         app.logger.info('Adding URL ' + new_url)
                         urls.append(new_url)
 
-                    fetched_result = Fetcher.fetch_multiple(urls, top_n)
-                    app.logger.info("Looping: "+str(len(fetched_result)) +"times")
-                    for fetched_data in fetched_result:
-                        try:
-                            if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
-                                continue
-                            details = dict()
-                            details['url'] = fetched_data[0]
-                            details['html'] = fetched_data[1]
-                            details['title'] = fetched_data[2]
-                            details['label'] = predict(model, fetched_data[3])
-                            print("Fetching image for " +fetched_data[0])
-                            app.logger.info('Fetching image for ' + fetched_data[0])
+                        fetched_result = Fetcher.fetch_multiple(urls, top_n)
+                        app.logger.info("Looping: "+str(len(fetched_result)) +"times")
+                        for fetched_data in fetched_result:
                             try:
-                                app.logger.info("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
-                                details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
-                            except Exception:
+                                if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
+                                    continue
+                                details = dict()
+                                details['url'] = fetched_data[0]
+                                details['html'] = fetched_data[1]
+                                details['title'] = fetched_data[2]
+                                details['label'] = predict(model, fetched_data[3])
+                                print("Fetching image for " +fetched_data[0])
+                                app.logger.info('Fetching image for ' + fetched_data[0])
+                                try:
+                                    app.logger.info("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
+                                    details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
+                                except Exception:
+                                    continue
+                                url_details.append(details)
+                                url_text.append(fetched_data[3])
+                                if len(url_details) == top_n:
+                                    break
+                            except:
+                                print("catching timeout exception")
                                 continue
-                            url_details.append(details)
-                            url_text.append(fetched_data[3])
-                            if len(url_details) == top_n:
-                                break
-                        except:
-                            print("catching timeout exception")
-                            continue
         except Exception as e:
             app.logger.info(e)
             app.logger.info('An error occurred while searching query: '+ query + ' and fetching results')
