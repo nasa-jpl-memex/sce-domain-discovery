@@ -12,7 +12,7 @@ from flask import current_app as app
 import logging
 from bs4 import BeautifulSoup
 import requests
-
+import uuid
 
 logging.basicConfig(level=logging.DEBUG)
 url_details = []
@@ -128,12 +128,12 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             app.logger.info('Fetching image for ' + fetched_data[0])
                             try:
                                 app.logger.info("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
-                                imag = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
-                                app.logger.info('encoded into b64, now decoding')
-                                con = imag.decode()
-                                app.logger.info('decoding done')
-                                details['image'] = con
-                                #details['image'] = base64.b64encode(requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240").content)
+                                imag = requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240")
+                                if imag.status_code == 200:
+                                    u = uuid.uuid4()
+                                    with open("/images/"+u+".png", 'wb') as f:
+                                        f.write(imag.content)
+                                    details['image'] = "/images/"+u+".png"
                             except Exception as e:
                                 app.logger.info(e)
                                 continue
