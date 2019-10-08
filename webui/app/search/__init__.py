@@ -40,14 +40,10 @@ def get_url_window(query, top_n, page):
     output = ""
     try:
         app.logger.info('Processing get url request '+ query)
-        #driver = Fetcher.get_selenium_driver()
-        #driver.get('https://duckduckgo.com/?q=' + query + '&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news')
         output = requests.get("http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%3Darctic%20policy%20national%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5").content
     except:
         app.logger.info('An error occurred while searching query: ' + query)
         app.logger.info(traceback.format_exc())
-        #Fetcher.close_selenium_driver(driver)
-        #Fetcher.search_driver = None
         bad_request = True
 
     finally:
@@ -92,8 +88,6 @@ def query_and_fetch(query, model, top_n=12, page=1):
     except:
         app.logger.info('An error occurred while searching query: ' + query)
         app.logger.info(traceback.format_exc())
-        #Fetcher.close_selenium_driver(driver)
-        #Fetcher.search_driver = None
         bad_request = True
 
     finally:
@@ -158,6 +152,10 @@ def query_and_fetch(query, model, top_n=12, page=1):
     except DocumentNotFoundError as error:
         app.logger.info(error)
         raise
+
+    with open(url_details['image'], "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+        url_details['image'] = encoded_string.decode()
 
     print('Search Completed')
     app.logger.info('Search Completed')
