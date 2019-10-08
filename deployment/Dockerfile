@@ -17,11 +17,10 @@ RUN apt-get update && \
 # Define commonly used JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
-
 COPY . /projects/sce-domain-discovery/
 
 WORKDIR /projects/sce-domain-discovery/webui
-RUN pip install -r requirements.txt && mkdir /models
+RUN pip install -r requirements.txt && mkdir /models && mkdir /images
 
 CMD ["python", "run.py"]
 
