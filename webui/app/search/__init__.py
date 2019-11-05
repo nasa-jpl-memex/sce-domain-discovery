@@ -124,10 +124,15 @@ def query_and_fetch(query, model, top_n=12, page=1):
                                 app.logger.info("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&width=320&height=240")
                                 imag = requests.get("http://sce-splash:8050/render.png?url="+fetched_data[0]+"&wait=5&width=320&height=240")
                                 if imag.status_code == 200:
-                                    u = uuid.uuid4()
+                                    u = str(uuid.uuid4())
                                     with open("/images/"+u+".png", 'wb') as f:
                                         f.write(imag.content)
                                     details['image'] = "/images/"+u+".png"
+
+                                    with open(details['image'], "rb") as image_file:
+                                        encoded_string = base64.b64encode(image_file.read())
+                                        details['image'] = encoded_string.decode()
+
                             except Exception as e:
                                 app.logger.info(e)
                                 continue
@@ -153,9 +158,6 @@ def query_and_fetch(query, model, top_n=12, page=1):
         app.logger.info(error)
         raise
 
-    with open(url_details['image'], "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-        url_details['image'] = encoded_string.decode()
 
     print('Search Completed')
     app.logger.info('Search Completed')
