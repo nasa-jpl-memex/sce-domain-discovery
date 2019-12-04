@@ -13,7 +13,7 @@ import logging
 from bs4 import BeautifulSoup
 import requests
 import uuid
-import urllib.parse
+import urllib
 
 logging.basicConfig(level=logging.DEBUG)
 url_details = []
@@ -41,10 +41,13 @@ def get_url_window(query, top_n, page):
     output = ""
     try:
         app.logger.info('Processing get url request '+ query)
-        q = urllib.parse.urlencode(query, quote_via=urllib.parse.quote)
-        app.logger.info('Encoded query '+q)
+        url = 'https://duckduckgo.com/?q='+query+'&kl=wt-wt&ks=l&k1=-1&kp=-2&ka=a&kaq=-1&k18=-1&kax=-1&kaj=u&kac=-1&kn=1&kt=a&kao=-1&kap=-1&kak=-1&kk=-1&ko=s&kv=-1&kav=1&t=hk&ia=news&wait=5'
+        app.logger.info('Non Encoded query '+url)
+        f = {'url': url}
+        qry = urllib.urlencode(f)
+        o = 'http://sce-splash:8050/render.html?'+qry
         #output = requests.get("http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%3Darctic%20policy%20national%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5").content
-        output = requests.get("http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%"+q+"%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews%26wait%3D5")
+        output = requests.get(o)
     except:
         app.logger.info('An error occurred while searching query: ' + query)
         app.logger.info(traceback.format_exc())
