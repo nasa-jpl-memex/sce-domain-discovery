@@ -124,7 +124,7 @@ def update_model(m, annotations):
     #model['countvectorizer'] = base64.encodestring(dumps(count_vect,0))
     #model['tfidftransformer'] = base64.encodestring(dumps(tfidftransformer,0))
     #model['clf'] = base64.encodestring(dumps(clf,0))
-    encoded_model = {'countvectorizer': count_vect, 'tfidtransformer': tfidftransformer, 'clf': clf}
+    encoded_model = {'countvectorizer': count_vect, 'tfidftransformer': tfidftransformer, 'clf': clf}
     with open('/models/'+model['name']+'.pickle', 'wb') as handle:
         pickle.dump(encoded_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     #setattr(flask.current_app, 'model', model)
@@ -154,19 +154,12 @@ def predict(m, txt):
     model = models[m]
     encoded_model = {}
 
-    app.logger.info('Predicting '+model['name'])
     if(os.path.isfile('/models/'+model['name']+'.pickle')):
         with open('/models/'+model['name']+'.pickle', 'rb') as handle:
             encoded_model = pickle.load(handle)
 
-    #print("Creating Prediction Model, looking for: "+m)
-    app.logger.info('Creating Prediction Model '+model['name'])
-
-    app.logger.info('Sorting Count Vectorizer out')
     if('countvectorizer' in encoded_model):
         test = encoded_model['countvectorizer']
-        app.logger.info('CV is '+test)
-    app.logger.info('CV Sorted')
     if model is None:
         app.logger.info("Model not found")
         return -1
@@ -183,8 +176,6 @@ def predict(m, txt):
     features=tfidftransformer.transform(features).toarray().astype(np.float64)
 
     predicted = clf.predict(features)
-    app.logger.info("Prediction")
-    app.logger.info(predicted)
     return predicted[0]
 
 def import_model():

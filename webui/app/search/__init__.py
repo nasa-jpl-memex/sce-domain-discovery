@@ -43,7 +43,6 @@ def get_url_window(query, top_n, page):
         app.logger.info('Processing get url request '+ query)
         query = urllib.quote(query)
         o = "http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%3D"+query+"%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5"
-        #output = requests.get("http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com%2F%3Fq%3Darctic%20policy%20national%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%26ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5").content
         output = requests.get(o).content
     except:
         app.logger.info('An error occurred while searching query: ' + query)
@@ -109,6 +108,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
                 while result_size > 0 and len(url_details) < top_n:
                     fetched_result = Fetcher.fetch_multiple(urls, top_n)
                     app.logger.info("Looping: "+str(len(fetched_result)) +"times")
+                    app.logger.info("URL Details: "+str(len(url_details)))
+                    app.logger.info("Top N: "+str(top_n))
                     for fetched_data in fetched_result:
                         try:
                             app.logger.info("Extracting")
