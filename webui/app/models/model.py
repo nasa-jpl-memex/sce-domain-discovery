@@ -19,7 +19,7 @@ else:
     models = db.collections['models']
 
 def set_sparkler_defaults(model):
-    print(model)
+    set_sparkler_options(model, {})
 
 def set_sparkler_options(model, content):
 
