@@ -4,6 +4,8 @@ from flask import Blueprint, request, send_from_directory, jsonify
 from flask_cors import CORS
 import os
 import subprocess
+from models import get_sparkler_options, set_sparkler_options
+import yaml
 
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
@@ -72,66 +74,19 @@ def check_crawl_exists(model):
     ## TODO FIX URL for scale out
     return requests.post("http://sparkler:6000/cmd/crawler/exist/").text
 
+@mod_app.route('/cmd/crawler/settings/<model>', methods=['POST'])
+def set_sparkler_config(model):
+    content = request.json
+    set_sparkler_options(model, content)
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
-    content = request.json
-    topn = "1000"
-    topgrp = "256"
-    sortby = "discover_depth asc, score asc"
-    groupby = "group"
-    serverdelay = "1000"
-    fetchheaders = '''User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Sparkler/${project.version}"
-  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-  Accept-Language: "en-US,en"'''
-    activeplugins = """- urlfilter-regex
-    - urlfilter-samehost
-    """
-    plugins = """urlfilter.regex:
-    urlfilter.regex.file: regex-urlfilter.txt
-  fetcher.jbrowser:
-    socket.timeout: 3000
-    connect.timeout: 3000    
-    """
+    content = get_sparkler_options(model)
 
-    if("topn" in content):
-        topn = content.topn
-    if("topgrp" in content):
-        topgrp = content.topgrp
-    if("sortby" in content):
-        sortby = content.sortby
-    if("groupby" in content):
-        groupby = content.groupby
-    if("serverdelay" in content):
-        serverdelay = content.serverdelay
-    if("fetchheaders" in content):
-        fetchheaders = content.fetchheaders
-    if("activeplugins" in content):
-        activeplugins = content.activeplugins
-    if("plugins" in content):
-        plugins = content.plugins
-
-    yml = """
-crawldb.uri: http://localhost:8983/solr/crawldb
-spark.master: local[*]
-kafka.enable: false
-kafka.listeners: localhost:9092
-kafka.topic: sparkler_%s
-generate.topn:  """+topn+"""
-generate.top.groups: """+topgrp+"""
-generate.sortby: \""""+sortby+"""\"
-generate.groupby: \""""+groupby+"""\"
-fetcher.server.delay: """+serverdelay+"""
-fetcher.headers:
-  """+fetchheaders+"""
-plugins.active:
-    """+activeplugins+"""
-plugins:
-  """+plugins
-    print(yml)
+    print(yaml.dump(content))
 
     #cmd = ["echo", yml, ">", "/data/sparkler/conf/sparkler-default.yaml", "&&", "/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
-    cmd = ["bash", "-c", "echo \'"+yml+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
+    cmd = ["bash", "-c", "echo \'"+yaml.dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
     if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""

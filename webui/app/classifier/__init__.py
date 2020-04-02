@@ -12,6 +12,8 @@ from pyArango.connection import *
 import pickle
 from flask import current_app as app
 import logging
+from models import set_sparkler_defaults
+
 accuracy = 0.0
 splits = 2
 iteration = 1
@@ -62,6 +64,7 @@ def new_model(name):
     model['name'] = name
     model._key = name
     model.save()
+    set_sparkler_defaults(name)
     print('create new model')
 
 def get_models():
