@@ -75,8 +75,63 @@ def check_crawl_exists(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
-    cmd = ["/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
+    content = request.json
+    topn = "1000"
+    topgrp = "256"
+    sortby = "discover_depth asc, score asc"
+    groupby = "group"
+    serverdelay = "1000"
+    fetchheaders = '''User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Sparkler/${project.version}"
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+  Accept-Language: "en-US,en"'''
+    activeplugins = """- urlfilter-regex
+    - urlfilter-samehost
+    """
+    plugins = """urlfilter.regex:
+    urlfilter.regex.file: regex-urlfilter.txt
+  fetcher.jbrowser:
+    socket.timeout: 3000
+    connect.timeout: 3000    
+    """
 
+    if("topn" in content):
+        topn = content.topn
+    if("topgrp" in content):
+        topgrp = content.topgrp
+    if("sortby" in content):
+        sortby = content.sortby
+    if("groupby" in content):
+        groupby = content.groupby
+    if("serverdelay" in content):
+        serverdelay = content.serverdelay
+    if("fetchheaders" in content):
+        fetchheaders = content.fetchheaders
+    if("activeplugins" in content):
+        activeplugins = content.activeplugins
+    if("plugins" in content):
+        plugins = content.plugins
+
+    yml = """
+crawldb.uri: http://localhost:8983/solr/crawldb
+spark.master: local[*]
+kafka.enable: false
+kafka.listeners: localhost:9092
+kafka.topic: sparkler_%s
+generate.topn:  """+topn+"""
+generate.top.groups: """+topgrp+"""
+generate.sortby: \""""+sortby+"""\"
+generate.groupby: \""""+groupby+"""\"
+fetcher.server.delay: """+serverdelay+"""
+fetcher.headers:
+  """+fetchheaders+"""
+plugins.active:
+    """+activeplugins+"""
+plugins:
+  """+plugins
+    print(yml)
+
+    #cmd = ["echo", yml, ">", "/data/sparkler/conf/sparkler-default.yaml", "&&", "/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
+    cmd = ["bash", "-c", "echo \'"+yml+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
     if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""

@@ -12,7 +12,6 @@ from pyArango.connection import *
 import pickle
 from flask import current_app as app
 import logging
-
 accuracy = 0.0
 splits = 2
 iteration = 1
