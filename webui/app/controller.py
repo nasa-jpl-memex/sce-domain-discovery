@@ -6,6 +6,7 @@ import os
 import subprocess
 from models.model import get_sparkler_options, set_sparkler_options
 import yaml
+import json
 
 # Define Blueprint(s)
 mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
@@ -82,7 +83,7 @@ def set_sparkler_config(model):
 @mod_app.route('/cmd/crawler/settings/<model>', methods=['GET'])
 def get_sparkler_config(model):
     content = get_sparkler_options(model).getStore()
-    return content
+    return json.dumps(content)
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
