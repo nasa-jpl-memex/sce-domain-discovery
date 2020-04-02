@@ -34,22 +34,22 @@ def set_sparkler_options(model, content):
     activeplugins = ["urlfilter-regex", "urlfilter-samehost"]
     plugins = {"urlfilter.regex": {"urlfilter.regex.file": "regex-urlfilter.txt"}, "fetcher.jbrowser":{"socket.timeout": 3000, "connect.timeout": 3000}}
 
-    if "topn" in content:
-        topn = content.topn
-    if "topgrp" in content:
-        topgrp = content.topgrp
-    if "sortby" in content:
-        sortby = content.sortby
-    if "groupby" in content:
-        groupby = content.groupby
-    if "serverdelay" in content:
-        serverdelay = content.serverdelay
-    if "fetchheaders" in content:
-        fetchheaders = content.fetchheaders
-    if "activeplugins" in content:
-        activeplugins = content.activeplugins
+    if "generate.topn" in content:
+        topn = content['generate.topn']
+    if "generate.top.groups" in content:
+        topgrp = content['generate.top.groups']
+    if "generate.sortby" in content:
+        sortby = content['generate.sortby']
+    if "generate.groupby" in content:
+        groupby = content['generate.groupby']
+    if "fetcher.server.delay" in content:
+        serverdelay = content['fetcher.server.delay']
+    if "fetcher.headers" in content:
+        fetchheaders = content['fetcher.headers']
+    if "plugins.active" in content:
+        activeplugins = content['plugins.active']
     if "plugins" in content:
-        plugins = content.plugins
+        plugins = content['plugins']
     content = {"crawldb.uri":"http://localhost:8983/solr/crawldb",
                "spark.master": "local[*]",
                "kafka.enable": "false",

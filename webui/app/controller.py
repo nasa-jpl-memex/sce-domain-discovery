@@ -79,6 +79,7 @@ def check_crawl_exists(model):
 def set_sparkler_config(model):
     content = request.json
     set_sparkler_options(model, content)
+    return "config updated"
 
 @mod_app.route('/cmd/crawler/settings/<model>', methods=['GET'])
 def get_sparkler_config(model):
