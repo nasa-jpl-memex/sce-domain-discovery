@@ -81,12 +81,12 @@ def set_sparkler_config(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
-    content = get_sparkler_options(model)
+    content = get_sparkler_options(model).getStore()
 
-    print(yaml.dump(content))
+    print(yaml.safe_dump(content))
 
     #cmd = ["echo", yml, ">", "/data/sparkler/conf/sparkler-default.yaml", "&&", "/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
-    cmd = ["bash", "-c", "echo \'"+yaml.dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
+    cmd = ["bash", "-c", "echo \'"+yaml.safe_dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
     if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""

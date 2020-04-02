@@ -72,12 +72,10 @@ def set_sparkler_options(model, content):
         raise
 
 def get_sparkler_options(model):
+
     try:
         m = models[model]
-        if('sparkler_opts' in m):
-            return m['sparkler_opts']
-        else:
-            return None
+        return m['sparkler_opts']
     except DocumentNotFoundError as error:
         app.logger.info(error)
         raise
