@@ -4,7 +4,7 @@ from flask import Blueprint, request, send_from_directory, jsonify
 from flask_cors import CORS
 import os
 import subprocess
-from models import get_sparkler_options, set_sparkler_options
+from models.model import get_sparkler_options, set_sparkler_options
 import yaml
 
 # Define Blueprint(s)

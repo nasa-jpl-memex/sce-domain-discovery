@@ -1,18 +1,15 @@
-from pickle import dumps, loads
 from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer
 from sklearn.externals import joblib
 import flask
 import numpy as np
 import os
-import json
 from flask import request, flash
 # from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from pyArango.connection import *
 import pickle
 from flask import current_app as app
-import logging
-from models import set_sparkler_defaults
+from app.models.model import set_sparkler_defaults
 
 accuracy = 0.0
 splits = 2
