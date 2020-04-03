@@ -212,19 +212,8 @@ def import_model():
 
 
 def export_model(m):
-    global accuracy
-    #model = getattr(flask.current_app, 'model', None)
-    model = models[m]
-
-    if model is None:
-        return -1
-
-    model['accuracy']=accuracy
-
-    fname = 'model.pkl'
-    joblib.dump(model, fname)
-
-    return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
+    #return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
+    return flask.send_from_directory(directory='/models/', filename=m+'.pickle')
 
 
 def check_model(m):

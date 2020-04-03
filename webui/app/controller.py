@@ -55,7 +55,7 @@ def upload_model(model):
     return classifier.import_model(model)
 
 
-@mod_app.route('/classify/download/<model>', methods=['POST'])
+@mod_app.route('/classify/download/<model>', methods=['GET'])
 def download_model(model):
     ## TODO Specify model
     return classifier.export_model(model)
