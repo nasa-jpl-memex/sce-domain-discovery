@@ -229,4 +229,4 @@ def feeds(model):
     if s is None:
         return ""
     else:
-        return s
+        return json.dumps(s)
