@@ -88,12 +88,22 @@ def get_sparkler_config(model):
 
 @mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
+    crawl_opts = request.json
     content = get_sparkler_options(model).getStore()
 
     print(yaml.safe_dump(content))
+    cmd_params = ''
+    if('iterations' in crawl_opts):
+        cmd_params += '-i '+ crawl_opts['iterations']
+
+    if('topgroups' in crawl_opts):
+        cmd_params += ' -tg' +crawl_opts['topgroups']
+
+    if('topn' in crawl_opts):
+        cmd_params += ' -tn ' + crawl_opts['topn']
 
     #cmd = ["echo", yml, ">", "/data/sparkler/conf/sparkler-default.yaml", "&&", "/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
-    cmd = ["bash", "-c", "echo \'"+yaml.safe_dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model]
+    cmd = ["bash", "-c", "echo \'"+yaml.safe_dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model+ " "+cmd_params]
     if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
