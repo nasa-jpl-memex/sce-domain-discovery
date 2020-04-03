@@ -79,3 +79,17 @@ def get_sparkler_options(model):
     except DocumentNotFoundError as error:
         app.logger.info(error)
         raise
+
+
+def update_seed_urls(model, urls):
+    try:
+        m = models[model]
+        old_urls = m['seeds']
+        if old_urls is None:
+            old_urls = []
+        old_urls = old_urls + urls
+        m['seeds'] = list(dict.fromkeys(old_urls))
+        m.save()
+    except DocumentNotFoundError as error:
+        app.logger.info(error)
+        raise

@@ -4,7 +4,7 @@ from flask import Blueprint, request, send_from_directory, jsonify
 from flask_cors import CORS
 import os
 import subprocess
-from models.model import get_sparkler_options, set_sparkler_options
+from models.model import get_sparkler_options, set_sparkler_options, update_seed_urls
 import yaml
 import json
 
@@ -199,8 +199,7 @@ def force_kill_crawl(model):
 @mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
 def upload_seed(model):
     print request.get_data()
-    ## TODO Come up with a way of updating the uploaded data.
-    classifier.save_seeds(model, request.get_data())
+    update_seed_urls(model, request.get_data().splitlines())
     seeds =  request.get_data().splitlines()
     urls = ",".join(seeds)
     cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id", model]

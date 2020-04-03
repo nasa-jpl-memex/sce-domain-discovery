@@ -238,8 +238,3 @@ def check_model(m):
 
     # return str(0)
     return json_dictionary
-
-def save_seeds(m, data):
-    model = models[m]
-    model['seed_urls'] = data.splitlines()
-    model.save()
