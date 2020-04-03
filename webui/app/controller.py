@@ -224,7 +224,7 @@ def upload_seed(model):
         return "seed urls uploaded"
 
 @mod_app.route('/cmd/seed/fetch/<model>', methods=['GET'])
-def fetch_seeds(model):
+def feeds(model):
     s = fetch_seeds(model)
     if s is None:
         return ""
