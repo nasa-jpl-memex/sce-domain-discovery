@@ -93,3 +93,12 @@ def update_seed_urls(model, urls):
     except DocumentNotFoundError as error:
         app.logger.info(error)
         raise
+
+def fetch_seeds(model):
+    try:
+        m = models[model]
+        old_urls = m['seeds']
+        return old_urls
+    except DocumentNotFoundError as error:
+        app.logger.info(error)
+        raise

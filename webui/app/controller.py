@@ -4,7 +4,7 @@ from flask import Blueprint, request, send_from_directory, jsonify
 from flask_cors import CORS
 import os
 import subprocess
-from models.model import get_sparkler_options, set_sparkler_options, update_seed_urls
+from models.model import get_sparkler_options, set_sparkler_options, update_seed_urls, fetch_seeds
 import yaml
 import json
 
@@ -222,3 +222,11 @@ def upload_seed(model):
         subprocess.call(pcmd)
         subprocess.Popen(qcmd)
         return "seed urls uploaded"
+
+@mod_app.route('/cmd/seed/fetch/<model>', methods=['GET'])
+def fetch_seeds(model):
+    s = fetch_seeds(model)
+    if s is None:
+        return ""
+    else:
+        return s
