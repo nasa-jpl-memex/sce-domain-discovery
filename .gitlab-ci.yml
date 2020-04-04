@@ -181,14 +181,14 @@ license_management:
       - $LICENSE_MANAGEMENT_DISABLED
 
 
-deploy:
-  stage: deploy
-  image: dtzar/helm-kubectl
-  script:
-    - kubectl config set-cluster juju-cluster --server="${SERVER}"
-    - kubectl config set clusters.k8s.certificate-authority-data ${CERTIFICATE_AUTHORITY_DATA}
-    - kubectl config set-credentials admin --password="${USER_TOKEN}" --username="admin"
-    - kubectl config set-context juju-context --cluster=juju-cluster --user=admin
-    - kubectl config use-context juju-context
-    - kubectl delete --insecure-skip-tls-verify -n sce deployment --ignore-not-found=true sce-api
-    - kubectl -n sce --insecure-skip-tls-verify apply -f deployment.yaml
+#deploy:
+#  stage: deploy
+#  image: dtzar/helm-kubectl
+#  script:
+#    - kubectl config set-cluster juju-cluster --server="${SERVER}"
+#    - kubectl config set clusters.k8s.certificate-authority-data ${CERTIFICATE_AUTHORITY_DATA}
+#    - kubectl config set-credentials admin --password="${USER_TOKEN}" --username="admin"
+#    - kubectl config set-context juju-context --cluster=juju-cluster --user=admin
+#    - kubectl config use-context juju-context
+#    - kubectl delete --insecure-skip-tls-verify -n sce deployment --ignore-not-found=true sce-api
+#    - kubectl -n sce --insecure-skip-tls-verify apply -f deployment.yaml
