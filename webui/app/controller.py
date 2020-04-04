@@ -91,7 +91,7 @@ def start_crawl(model):
     crawl_opts = request.json
     content = get_sparkler_options(model).getStore()
     if 'fetcher.headers' in content:
-        content['fetcher.headers'] = "\n".join(content['fetcher.headers'])
+        content['fetcher.headers'] = "\""+"\n".join(content['fetcher.headers'])+"\""
 
     cmd_params = ''
     if crawl_opts is not None:
@@ -103,9 +103,9 @@ def start_crawl(model):
 
         if('topn' in crawl_opts):
             cmd_params += ' -tn ' + str(crawl_opts['topn'])
-
     #cmd = ["echo", yml, ">", "/data/sparkler/conf/sparkler-default.yaml", "&&", "/data/sparkler/bin/sparkler.sh", "crawl", "-cdb", "http://sce-solr:8983/solr/crawldb", "-id", model]
     cmd = ["bash", "-c", "echo \'"+yaml.safe_dump(content)+"\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id "+model+ " "+cmd_params]
+    print(cmd)
     if k8s.lower() == "true":
         f=open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token =""
