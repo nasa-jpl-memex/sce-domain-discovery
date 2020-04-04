@@ -28,9 +28,8 @@ def set_sparkler_options(model, content):
     sortby = "discover_depth asc, score asc"
     groupby = "group"
     serverdelay = 1000
-    fetchheaders = ['User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Sparkler/${project.version}"',
-          'Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"',
-          'Accept-Language: "en-US,en"']
+    fetchheaders = [{"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Sparkler"},{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"},{"Accept-Language":"en-US,en"}]
+
     activeplugins = ["urlfilter-regex", "urlfilter-samehost"]
     plugins = {"urlfilter.regex": {"urlfilter.regex.file": "regex-urlfilter.txt"}, "fetcher.jbrowser":{"socket.timeout": 3000, "connect.timeout": 3000}}
 

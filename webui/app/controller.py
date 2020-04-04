@@ -90,8 +90,7 @@ def get_sparkler_config(model):
 def start_crawl(model):
     crawl_opts = request.json
     content = get_sparkler_options(model).getStore()
-    if 'fetcher.headers' in content:
-        content['fetcher.headers'] = "\""+"\n".join(content['fetcher.headers'])+"\""
+
 
     cmd_params = ''
     if crawl_opts is not None:
