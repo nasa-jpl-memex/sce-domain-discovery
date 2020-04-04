@@ -165,8 +165,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
 
     try:
         model = models[model]
-        model['url_text'] = url_text
-        model['url_details'] = url_details
+        model['url_text'] = url_text.encode('utf-8').strip()
+        model['url_details'] = url_details.encode('utf-8').strip()
         model.save()
     except DocumentNotFoundError as error:
         app.logger.info(error)
