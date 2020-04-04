@@ -8,19 +8,8 @@ services:
         - ARANGO_NO_AUTH=1
     volumes:
       - db:/var/lib/arangodb3
-#  sce-chrome:
-#    image: browserless/chrome
-#    ports:
-#      - 3000:3000
-#    environment:
-#        - CONNECTION_TIMEOUT=160000
-#        - MAX_QUEUE_LENGTH=20
-        #- PREBOOT_CHROME=true
-        #- DEBUG=browserless/chrome*
-        #- KEEP_ALIVE=true
-        #- MAX_CONCURRENT_SESSIONS=3
   sce-solr:
-    image: registry.gitlab.com/sparkler-crawl-environment/sparkler/solr:memex-dd
+    image: uscdatascience/sparkler/solr:memex-dd
     ports:
      - "8983:8983"
     volumes:
@@ -33,7 +22,7 @@ services:
       - 8050:8050
 
   sce-api:
-    image: registry.gitlab.com/sparkler-crawl-environment/memex-dd:memex-dd
+    image: nasajplmemex/sce-domain-discovery:latest
     ports:
       - "5000:5000"
     environment:
@@ -45,7 +34,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock    
       - models:/models
   sce-ui:
-    image: registry.gitlab.com/sparkler-crawl-environment/sce-ui:latest
+    image: uscdatascience/sparkler-ui:latest
     ports:
       - "8080:80"
     

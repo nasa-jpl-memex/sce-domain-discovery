@@ -2,10 +2,11 @@ from flask_restplus import Namespace, Resource
 from flask import request
 from app import classifier
 import json
+
 api = Namespace('classify', description='Interact with the ML model')
 
 
-@api.route('/predict', methods=['GET','POST'])
+@api.route('/predict', methods=['GET', 'POST'])
 class Predict(Resource):
     @api.doc('predict')
     def get(self, content, model):
@@ -34,7 +35,7 @@ class Predict(Resource):
         }
         result = -1
         data = request.data
-        d = json.loads(data.decode("utf-8","ignore"))
+        d = json.loads(data.decode("utf-8", "ignore"))
         if len(data) != 0:
             content = d['score'][0]['content']
             model = d['score'][0]['model']
