@@ -25,6 +25,18 @@ class Fetcher(object):
         return text.encode('utf-8')
 
     @staticmethod
+    def cleanString(text):
+        try:
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = '\n'.join(chunk for chunk in chunks if chunk)
+            text=text.replace('\n',' ')
+            return unicode(text, errors='ignore')
+        except TypeError:
+            return text
+
+
+    @staticmethod
     def get_selenium_driver(timeout=10, screenshots=False):
         driver = None
         if not screenshots and Fetcher.search_driver is not None:
@@ -140,10 +152,16 @@ class Fetcher(object):
             #    data = data.encode('utf-8')
             soup = BeautifulSoup(data, 'html.parser')
             print('Parsed %s from %s' % (len(data), url))
-            return([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])
+            u = Fetcher.cleanString(url)
+            d = Fetcher.cleanString(data)
+
+            t = soup.title.string.encode('utf-8')
+            o = Fetcher.cleantext(soup)
+            return([u, d, t, o])
         except Exception as e:
             print(e)
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
+
 
     @staticmethod
     def is_alive(threads):
