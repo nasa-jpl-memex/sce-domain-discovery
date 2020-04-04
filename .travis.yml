@@ -4,4 +4,6 @@ services:
   - docker
 
 before_install:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -f deployment/Dockerfile --pull -t nasajplmemex/sce-domain-discovery:latest
+  - docker push nasajplmemex/sce-domain-discovery:latest

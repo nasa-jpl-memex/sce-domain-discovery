@@ -2,50 +2,80 @@ from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
-from urllib2 import urlopen
+import requests
 import threading
 import Queue
 import re
-
+import os
 
 class Fetcher(object):
     """Fetching Capability using Selenium"""
 
     search_driver = None
+    screenshot_driver = None
+    @staticmethod
+    def cleantext(soup):
+        for script in soup(["script", "style"]):
+            script.extract()  # rip it out
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+        text=text.replace('\n',' ')
+        return text.encode('utf-8')
 
     @staticmethod
-    def get_selenium_driver(timeout=10):
-        if Fetcher.search_driver is not None:
-            return Fetcher.search_driver
+    def cleanString(text):
+        try:
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = '\n'.join(chunk for chunk in chunks if chunk)
+            text=text.replace('\n',' ')
+            return unicode(text, errors='ignore')
+        except TypeError:
+            return text
+
+
+    @staticmethod
+    def get_selenium_driver(timeout=10, screenshots=False):
+        driver = None
+        if not screenshots and Fetcher.search_driver is not None:
+            driver = Fetcher.search_driver
+        elif screenshots and Fetcher.screenshot_driver is not None:
+            driver = Fetcher.screenshot_driver
+
+        if driver is not None:
+            try:
+                driver.get("http://www.example.com/")
+                return driver
+            except Exception as e:
+                print('Selenium driver seems to have crashed, creating a new one {}'.format(str(e)))
+                return Fetcher.new_selenium_driver(screenshots)
+
         else:
-            capabilities = DesiredCapabilities.FIREFOX
-            capabilities['takesScreenShot'] = False
-            binary = FirefoxBinary('/data/projects/G-817549/standalone/tools/firefox/firefox')
-            driver = webdriver.Firefox(firefox_binary=binary,
-                                       capabilities=capabilities,
-                                       log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            #capabilities = DesiredCapabilities.PHANTOMJS
-            #capabilities['takesScreenShot'] = False
-            #driver = webdriver.PhantomJS(executable_path='/data/projects/G-817549/standalone/tools/phantomjs-2.1.1/bin/phantomjs',
-            #driver = webdriver.PhantomJS(executable_path='/Users/ksingh/phantomjs-2.1.1-macosx/bin/phantomjs',
-            #                             desired_capabilities=capabilities,
-                                         #service_log_path='/data/projects/G-817549/standalone/logs/firefox/selenium.log')
-            #                             service_log_path='/Users/ksingh/phantomjs.log')
-
-
-
-            #capabilities = DesiredCapabilities.CHROME
-            #capabilities['takesScreenShot'] = False
-            #driver = webdriver.Chrome(executable_path='/Users/ksingh/chromedriver',
-            #                          desired_capabilities=capabilities,
-            #                          service_log_path='/Users/ksingh/chrome.log')
-            Fetcher.search_driver = driver
+            if screenshots:
+                Fetcher.screenshot_driver = Fetcher.new_selenium_driver(screenshots)
+            else:
+                Fetcher.search_driver = Fetcher.new_selenium_driver(screenshots)
             return Fetcher.search_driver
 
     @staticmethod
-    def new_selenium_driver(timeout=10):
-        driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
-                                      desired_capabilities=DesiredCapabilities.CHROME)
+    def new_selenium_driver(screenshots, timeout=10):
+        if screenshots:
+            wd = os.getenv('WEBDRIVER_URL_SCREENSHOTS', "http://sce-chrome-screenshots:3000/webdriver")
+        else:
+            wd = os.getenv('WEBDRIVER_URL', "http://sce-chrome:3000/webdriver")
+
+        print("WEBDRIVER URL is "+ wd)
+        desired_capabilities = DesiredCapabilities.CHROME
+        desired_capabilities['chromeOptions'] = {
+            "args": ["--disable-extensions","--headless","--no-sandbox"],
+            "extensions": []
+        }
+        driver = webdriver.Remote(command_executor=wd,
+                                      desired_capabilities=desired_capabilities)
+        driver.implicitly_wait(60)
+        driver.set_page_load_timeout(60)
         #driver.set_page_load_timeout(timeout)
         return driver
 
@@ -85,29 +115,53 @@ class Fetcher(object):
 
     @staticmethod
     def plain(url):
-        res = urlopen(url)
-        html = res.read()
-        if res.headers.getparam('charset').lower() != 'utf-8':
-            html = html.encode('utf-8')
+        #res = urlopen(url)
+        html = requests.get(url).content
+        #if res.headers.getparam('charset').lower() != 'utf-8':
+        #    html = html.encode('utf-8')
         #start = html.find('<title>') + 7  # Add length of <title> tag
         #end = html.find('</title>', start)
         #title = html[start:end]
         soup = BeautifulSoup(html, 'html.parser')
-        return [html, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')]
+        return [html, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)]
 
     @staticmethod
     def read_url(url, queue):
         try:
-            res = urlopen(url)
-            data = res.read()
+            #res = urlopen(url)
+            #data = res.read()
+            data = requests.get(url).content
             print('Fetched %s from %s' % (len(data), url))
-            if res.headers.getparam('charset').lower() != 'utf-8':
-                data = data.encode('utf-8')
+            #if res.headers.getparam('charset').lower() != 'utf-8':
+            #    data = data.encode('utf-8')
             soup = BeautifulSoup(data, 'html.parser')
             print('Parsed %s from %s' % (len(data), url))
-            queue.put([url, data, soup.title.string.encode('utf-8'), soup.text.encode('utf-8')])
-        except:
+            queue.put([url, data, soup.title.string.encode('utf-8'), Fetcher.cleantext(soup)])
+        except Exception as e:
+            print(e)
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
+
+    @staticmethod
+    def read_url2(url):
+        try:
+            #res = urlopen(url)
+            #data = res.read()
+            data = requests.get(url).content
+            print('Fetched %s from %s' % (len(data), url))
+            #if res.headers.getparam('charset').lower() != 'utf-8':
+            #    data = data.encode('utf-8')
+            soup = BeautifulSoup(data, 'html.parser')
+            print('Parsed %s from %s' % (len(data), url))
+            u = Fetcher.cleanString(url)
+            d = Fetcher.cleanString(data)
+
+            t = soup.title.string.encode('utf-8')
+            o = Fetcher.cleantext(soup)
+            return([u, d, t, o])
+        except Exception as e:
+            print(e)
+            print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
+
 
     @staticmethod
     def is_alive(threads):
@@ -134,7 +188,10 @@ class Fetcher(object):
 
     @staticmethod
     def fetch_multiple(urls, top_n):
-        result = Fetcher.parallel(urls, top_n)
+        #result = Fetcher.parallel(urls, top_n)
+        result = []
+        for url in urls:
+            result.append(Fetcher.read_url2(url))
         return result
 
     @staticmethod
@@ -144,6 +201,6 @@ class Fetcher(object):
             result = Fetcher.plain(url)
         except:
             print('An error occurred while fetching URL: ' + url + ' using urllib. Skipping it!')
-            #print('An error occurred while fetching URL: ' + url + ' using urllib. Trying Selenium...')
-            #result = Fetcher.selenium(url)
+            print('An error occurred while fetching URL: ' + url + ' using urllib. Trying Selenium...')
+            result = Fetcher.selenium(url)
         return result

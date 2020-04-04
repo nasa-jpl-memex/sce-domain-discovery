@@ -41,29 +41,23 @@
         <!-- Navigation -->
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0; width: 100% !important;">
             <div class="navbar-header" style="width: 95% !important;">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+
+<!--                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+-->
                 <div class="row">
-                    <div class="col-lg-6 col-md-6">
-                        <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
-                    </div>
-                    <div class="col-lg-2 col-md-2">
-                        <form id="form-export-model" action="classify/download/" method="post">
-                            <button id="export-model" type="submit" class="btn btn-primary"
-                            style="float: right !important; display: block; margin-top: 4%;">Export Model</button>
-                        </form>
-                    </div>
-                    <div class="col-lg-2 col-md-2">
+                   <div class="col-lg-4 col-md-4">
+                      <a class="navbar-brand" href="index.html">Domain Discovery - Seed Generation</a>
+                   </div>
+                   <div class="col-lg-4 col-md-4">
+                   </div>
+                   <div class="col-lg-4 col-md-4">
                         <button type="button" class="btn btn-primary update-model"
-                    style="float: right !important; display: none; margin-top: 4%;">Update Model</button>
-                    </div>
-                    <div class="col-lg-2 col-md-2">
-                        <span id="model-accuracy" style="display: block; margin-top: 8%;"><b>Accuracy : </b>
-                            <span id="model-accuracy-val">0.0</span></span>
+                    style="float: right !important; display: block; margin-top: 10px;">Update Model</button>
                     </div>
                 </div>
             </div>
@@ -73,7 +67,8 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li class="sidebar-search">
-                            <div class="input-group custom-search-form">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="This is the first step. It is what most of the page is devoted to. Start with a search term, just like you would in any search engine like Google, Bing, or Yahoo."><div class="circle">1</div>&nbsp; Generate a Model</div>
+                            <div class="input-group custom-search-form" style="margin-top:10px;">
                                 <input id="search-qry" type="text" class="form-control" placeholder="Search...">
                                 <span class="input-group-btn">
                                   <button id="search-bg" class="btn btn-default" type="button">
@@ -81,11 +76,76 @@
                                   </button>
                                 </span>
                             </div>
-                            <!-- /input-group -->
+                            <div>
+                                <div style="margin: 10px 15px;">
+                                    <div>
+                                        <span data-toggle="tooltip" title="Once you've searched, pages will show up on the right. Mark at least 10 pages with each relevancy rank in order to build a good model. In this case, more is even better." data-placement="bottom">Minimum 10 each</span>
+                                    </div>
+                                    <div>
+                                        <span id="hr_metric" >0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Highly Relevant" data-placement="bottom" class="btn btn-success btn-circle" onclick="return false;"><i class="fa fa-heart"></i></button>
+                                        &nbsp;
+                                        <span id="r_metric">0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Relevant" data-placement="bottom" class="btn btn-warning btn-circle" onclick="return false;"><i class="fa fa-check"></i></button>
+                                        &nbsp;
+                                        <span id="nr_metric">0</span>&nbsp;
+                                        <button type="button" data-toggle="tooltip" title="Not Relevant" data-placement="bottom" class="btn btn-danger btn-circle" onclick="return false;"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a class="small-font" role="button" data-toggle="collapse" href="#modelOptions">
+                              More Options &raquo;
+                            </a>
+                            <ul class="collapse noMarkers" id="modelOptions">
+                              <li>
+                                <a id="create-new" href="classify/createnew/" data-toggle="tooltip" data-placement="bottom" title="This WILL delete your current model!!!"><i class="fa fa-dashboard fa-fw"></i> Create New Model</a><br>
+                              </li>
+                              <li>
+                                <a id="browse-file" href="classify/upload/" data-toggle="tooltip" data-placement="bottom" title="Upload a model from your computer. This will replace the current model if there is one."><i class="fa fa-cloud-upload fa-fw"></i> Import Model</a><br>
+                              </li>
+                              <li>
+                                <input id="import-model" type="file" name="file" style="display: none" />
+                                <form id="form-export-model" action="classify/download/" method="post">
+                                  <button id="export-model-button" type="submit" class="btn btn-primary" style="float: right !important; display: none; margin-top: 4%;">Export Model</button>
+                                </form>
+                                <a id="export-model" data-toggle="tooltip" data-placement="bottom" title="Save the current model to your computer."><i class="fa fa-cloud-download fa-fw"></i> Export Model</a>
+                              </li>
+                            </ul>
                         </li>
-                        <li>
-                            <a href="/explorer/"><i class="fa fa-dashboard fa-fw"></i> Build Model</a>
+                        <li class="sidebar-search">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="Create and upload a file with a list of urls in it. These urls will be deep crawled (we'll get everything we can from them!) and also used as the starting place for the data collection."><div class="circle">2</div>&nbsp; Create a Seed File</div>
+                            <a id="browse-seed" data-toggle="tooltip" data-placement="bottom" title="This must be a .txt file with one url on each line. The urls needs the http:// stuff at the beginning!"><i class="fa fa-upload fa-fw"></i> Import Seed File</a>
+                            <form id="form-import-seed" action="/explorer/cmd/seed/upload/" enctype="multipart/form-data" method="post">
+                                <input id="import-seed" type="file" name="seed" style="display: none" />
+                            </form>
                         </li>
+                        <li class="sidebar-search">
+                          <div  data-toggle="tooltip" data-placement="bottom" title="Click the button to Start the Crawl and we'll go start collecting data!"><div class="circle">3</div>&nbsp; Start the Crawl</div>
+                          <a id="start-crawler" data-toggle="tooltip" data-placement="bottom" title="If you click this button, we'll start collecting data."><i class="fa fa-hourglass-start fa-fw"></i> Start Crawler</a>
+                          <a class="small-font" role="button" data-toggle="collapse" href="#crawlOptions">
+                            More Options &raquo;
+                          </a>
+                          <ul class="collapse noMarkers" id="crawlOptions">
+                            <li>
+                              <a id="stop-crawler" data-toggle="tooltip" data-placement="bottom" title="Stop the crawler gracefully. You won't lose any data, but it may take up to 30 minutes to stop."><i class="fa fa-hourglass-end fa-fw"></i> Stop Crawler</a>
+                            </li>
+                            <li>
+                              <a id="halt-crawler" data-toggle="tooltip" data-placement="bottom" title="Hitting this button will stop the crawler NOW! No waiting, but you may lose some data that was collected."><i class="fa fa-hourglass-o fa-fw"></i> Halt Crawler</a>
+                            </li>
+                          </ul>
+                        </li>
+                        <li class="sidebar-search">
+                            <div  data-toggle="tooltip" data-placement="bottom" title="Go here to see how your crawl is progressing. It may take up to 30 minutes before the first data appears in the dashboard.">
+                              <!-- write the url for the dashboard -->
+                              <script language="JavaScript">
+                                document.write('<a href="' + window.location.protocol + '//' + window.location.hostname + '/banana/' + '" >' );
+                              </script>
+                                <div class="circle">4</div>&nbsp; Visit the Crawl Dashboard
+                              </a>
+                            </div>
+                        </li>
+
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->
@@ -129,72 +189,35 @@
     <script src="../dist/js/sb-admin-2.js"></script>
 
     <script type="text/javascript">
-    $(document).ready(function(){
-      $('#search-bg').click(function (e) {
+    $(document).ready(function() {
+
+      $.post("classify/exist/", function (data) {
+        if(data != '-1') {
+          update_metrics(data);
+        }
+      });
+
+      $('[data-toggle="tooltip"]').tooltip();
+
+      $('#search-bg').click(function(e){ search_results(e)});
+      $('#search-qry').keypress(function(e) {
+       if (e.keyCode == 13) {
+        search_results(e);
+       }
+      });
+
+
+      $('#create-new').click(function (e) {
           e.preventDefault();
-          $('#search-page-wrapper').css('display', 'none');
-          $('.update-model').css('display', 'none');
-          $('#loader-page-wrapper').css('display', 'block');
-          $.ajax({type: "GET",
-              url: "/search/" + $("#search-qry").val(),
-              //data: { query: $("#search-qry").val() },
-              success:function(result)
-              {
-                  var jdata =  JSON.parse(result);
-                  var content = '<br/>';
-                  var i = 1;
+          $.get("classify/createnew/", function (data) {
+            alert("A new model has been created!");
+            $('#search-page-wrapper').css('display', 'none');
+            $('#search-qry').val('');
 
-                  // Building iframes
-                  for (i = 1; i <= jdata.length; i++) {
-                      if (i % 3 == 1) {
-                          content += '<div class="row">';
-                      }
-                      var marker = get_marker(jdata[i - 1]['label']);
-                      content += '<div class="col-lg-4 col-md-6">' +
-                          '<div id="page' + i + '-panel" class="panel panel-' + marker + '" style="height:350px">' +
-                          '<div id="page' + i + '-panel-heading" class="panel-heading">' +
-                          '</div>' +
-                          '<div class="search-result">' +
-                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" srcdoc="" sandbox></iframe>' +
-                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + jdata[i - 1]['label'] + '" />' +
-                          '<div class="row" style="text-align:center">' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
-                          '</div>' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-check"></i></button>' +
-                          '</div>' +
-                          '<div class="col-lg-4">' +
-                          '<button type="button" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-times"></i></button>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>' +
-                          '</div>';
-
-                      if (i % 3 == 0) {
-                          content += '</div>';
-                      }
-                  }
-
-                  $('#search-page-wrapper')
-                      .html(content)
-                      .css('display', 'block');
-                  $('.update-model').css('display', 'block');
-
-                  // Adding Content
-                  for (i = 1; i <= jdata.length; i++) {
-                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + jdata[i - 1]['title'].slice(0, 35) +
-                          '<br/> <b>URL:</b> ' + jdata[i - 1]['url'].slice(0, 35));
-                      $("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
-                  }
-
-                  $('#loader-page-wrapper').css('display', 'none');
-              },
-              error:function(result)
-              {
-                  alert('error');
-              }
+            $('#hr_metric').html(0);
+            $('#r_metric').html(0);
+            $('#nr_metric').html(0);
+            location.reload();
           });
       });
 
@@ -206,8 +229,13 @@
               data: form_data, // Form data
               success:function(result)
               {
-                  alert('Model has been updated with accuracy: ' + result);
-                  $('#model-accuracy-val').html(result);
+                  //alert('Model has been updated with accuracy: ' + result);
+                  alert('The model has been updated!');
+                  //$('#model-accuracy-val').html(result);
+                  //$('#model-metrics').css('display', 'block');
+
+                  update_metrics(result);
+
                   $('#search-page-wrapper').css('display', 'none');
                   $('.update-model').css('display', 'none');
               },
@@ -229,7 +257,187 @@
           });
       });
 
+      $('#start-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
+              if(data != 0) {
+                  alert('There is already a crawl job running!');
+              } else {
+                $.post("/explorer/cmd/crawler/crawl/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job has been started!");
+                  } else {
+                    alert("Please upload a seed file to start a crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
+      $('#stop-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
+              if(data == 0) {
+                  alert('There is no crawl job running!');
+              } else {
+                $.post("/explorer/cmd/crawler/int/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job is ending gracefully. It may take up to 30 minutes!");
+                  } else {
+                    alert("An error occurred while stopping the crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
+      $('#halt-crawler').click(function (e) {
+          e.preventDefault();
+          $.post("/explorer/cmd/crawler/exist/", function (data) {
+              if(data == 0) {
+                  alert('There is no crawl job running!');
+              } else {
+                $.post("/explorer/cmd/crawler/kill/", function (data) {
+                  if (data == 0) {
+                    alert("The crawl job has been forced to stop!");
+                  } else {
+                    alert("An error occurred while halting the crawl job!");
+                  }
+                });
+              }
+          });
+      });
+
+      $('#browse-file').click(function (e) {
+          e.preventDefault();
+          $('#import-model').trigger("click");
+      });
+
+      $('#import-model').change(function (e) {
+          e.preventDefault();
+          var form_data = new FormData();
+          form_data.append('file', $('input[type=file]')[0].files[0]);
+          $.ajax({type: "POST",
+              url: "/explorer/classify/upload/",
+              data: form_data, // Form data
+              processData: false,
+              contentType: false,
+              cache: false,
+              success:function(result)
+              {
+                  //alert('Model has been imported with accuracy: ' + result);
+                  alert('A new model has been imported!');
+                  $('#search-page-wrapper').css('display', 'none');
+
+                  update_metrics(result);
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
+
+      $('#browse-seed').click(function (e) {
+          e.preventDefault();
+          $('#import-seed').trigger("click");
+      });
     });
+
+    $('#import-seed').change(function (e) {
+          e.preventDefault();
+          var form_data = new FormData($('#form-import-seed')[0]);
+          $.ajax({type: "POST",
+              url: "/explorer/cmd/seed/upload/",
+              data: form_data, // Form data
+              processData: false,
+              contentType: false,
+              cache: false,
+              mimeType: "multipart/form-data",
+              async: true,
+              crossDomain: true,
+              success:function(result)
+              {
+                  alert('A new seed file has been uploaded!');
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+      });
+
+    function search_results(e) {
+        e.preventDefault();
+          $('#search-page-wrapper').css('display', 'none');
+          $('.update-model').css('display', 'none');
+          $('#loader-page-wrapper').css('display', 'block');
+          $.ajax({type: "GET",
+              url: "/search/" + $("#search-qry").val(),
+              //data: { query: $("#search-qry").val() },
+              success:function(result)
+              {
+                  var jdata =  JSON.parse(result);
+                  var content = '<br/>';
+                  var i = 1;
+
+                  var default_label = 0; // By default, not relevant!
+
+                  // Building iframes
+                  for (i = 1; i <= jdata.length; i++) {
+                      if (i % 3 == 1) {
+                          content += '<div class="row">';
+                      }
+                      var marker = get_marker(jdata[i - 1]['label']);
+                      content += '<div class="col-lg-4 col-md-6">' +
+                          '<div id="page' + i + '-panel" class="panel panel-' + marker + '" style="height:350px">' +
+                          '<div id="page' + i + '-panel-heading" class="panel-heading">' +
+                          '</div>' +
+                          '<div class="search-result">' +
+                          '<iframe id="page' + i + '-frame" width="100%" style="height:250px" src="" sandbox></iframe>' +
+                          '<input type="hidden" id="page' + i + '-ann" name="page' + i + '-ann" value="' + (jdata[i - 1]['label'] < 0 ? default_label : jdata[i - 1]['label']) + '" />' +
+                          '<div class="row" style="text-align:center">' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Highly Relevant</b>: This page contains the type of information required to answer questions for this domain. This is exactly what we are looking for." data-placement="bottom" class="btn btn-success btn-circle" onclick="mark_page(\'success\', ' + i + ');"><i class="fa fa-heart"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Relevant</b>: This page contains domain-relevant information, but it won\'t help answer questions." data-placement="bottom" class="btn btn-warning btn-circle" onclick="mark_page(\'warning\', ' + i + ');"><i class="fa fa-check"></i></button>' +
+                          '</div>' +
+                          '<div class="col-lg-4">' +
+                          '<button type="button" data-toggle="tooltip" data-html="true" title="<b>Not Relevant</b>: This page is irrelevant to the domain." data-placement="bottom" class="btn btn-danger btn-circle" onclick="mark_page(\'danger\', ' + i + ');"><i class="fa fa-minus"></i></button>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>' +
+                          '</div>';
+
+                      if (i % 3 == 0) {
+                          content += '</div>';
+                      }
+                  }
+
+                  $('#search-page-wrapper')
+                      .html(content)
+                      .css('display', 'block');
+                  $('.update-model').css('display', 'block');
+
+                  // Adding Content
+                  for (i = 1; i <= jdata.length; i++) {
+                      $("#page" + i + "-panel-heading").append('<b>Title:</b> ' + '<span data-toggle="tooltip" title="'+jdata[i - 1]['title']+'">' + jdata[i - 1]['title'].slice(0, 33) +
+                          '<br/> <b>URL:</b> <a href="'+jdata[i - 1]['url']+'" data-toggle="tooltip" title="'+jdata[i - 1]['url']+'" target="_blank" >' + jdata[i - 1]['url'].slice(0,31) +'</a>');
+                      //$("#page" + i + "-frame").attr("srcdoc", jdata[i - 1]['html']);
+                      $("#page" + i + "-frame").attr("src", jdata[i - 1]['url']);
+                  }
+
+                  $('#loader-page-wrapper').css('display', 'none');
+                  $('[data-toggle="tooltip"]').tooltip();
+              },
+              error:function(result)
+              {
+                  alert('error');
+              }
+          });
+    }
 
     function mark_page(marker, index) {
         $('#page' + index + '-panel')
@@ -240,19 +448,19 @@
         } else {
             $('#page' + index + '-panel').addClass('panel-' + marker);
         }
-        var mark_val = -1;
+        var mark_val = 0; // By default, not relevant
         switch(marker) {
-            case 'danger':
+            case 'success':
                 mark_val = 2;
                 break;
-            case 'success':
+            case 'warning':
                 mark_val = 1;
                 break;
-            case 'warning':
+            case 'danger':
                 mark_val = 0;
                 break;
             default:
-                mark_val = -1;
+                mark_val = 0;
         }
         $('#page' + index + '-ann').val(mark_val);
     }
@@ -261,18 +469,26 @@
         var marker = 'default';
         switch(label) {
             case 2:
-                marker = 'danger';
-                break;
-            case 1:
                 marker = 'success';
                 break;
-            case 0:
+            case 1:
                 marker = 'yellow';
                 break;
+            case 0:
+                marker = 'danger';
+                break;
             default:
-                marker = 'default';
+                marker = 'yellow';
         }
         return marker;
+    }
+
+    function update_metrics(data) {
+      var json_data = JSON.parse(data);
+
+      $('#hr_metric').html(json_data["2"]);
+      $('#r_metric').html(json_data["1"]);
+      $('#nr_metric').html(json_data["0"]);
     }
     </script>
 
