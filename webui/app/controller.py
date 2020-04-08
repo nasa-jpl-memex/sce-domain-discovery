@@ -124,7 +124,7 @@ def start_crawl(model):
                 "metadata": {"name": model + "crawl", "labels": {"run": model + "seed"}}, "spec": {
                 "containers": [
                     {"name": model + "crawl",
-                     "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd",
+                     "image": "uscdatascience/sparkler:latest",
                      "command": cmd,
                      "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
         requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json,
@@ -136,7 +136,7 @@ def start_crawl(model):
         subprocess.call(pcmd)
         print("Running container")
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "crawl",
-                "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
+                "uscdatascience/sparkler:latest"] + cmd
         subprocess.Popen(qcmd)
         return "crawl started"
 

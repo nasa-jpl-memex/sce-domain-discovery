@@ -9,7 +9,7 @@ services:
     volumes:
       - db:/var/lib/arangodb3
   sce-solr:
-    image: uscdatascience/sparkler/solr:memex-dd
+    image: uscdatascience/sparkler-solr:latest
     ports:
      - "8983:8983"
     volumes:
