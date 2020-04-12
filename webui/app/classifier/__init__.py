@@ -31,7 +31,6 @@ else:
 
 def load_vocab():
     """Load Vocabulary"""
-    # with open("/Users/ksingh/git-workspace/dd-polar/seedexplorer/src/main/resources/data/keywords.txt", 'rb') as f:
     if os.path.exists('keywords.txt'):
         with open("keywords.txt", 'rb') as f:
             keywords_content = f.read()
@@ -45,17 +44,7 @@ def load_vocab():
     return keywords
 
 
-# def clear_model():
-#     print('clear_model')
-#     fname = 'model.pkl'
-#     if os.path.isfile(fname):
-#         os.remove(fname)
-#     setattr(flask.current_app, 'model', None)
-#     return '0'
-
 def new_model(name):
-    ## Needs to create model in database, with name an initial crawl urls etc
-
     model = models.createDocument()
     model['name'] = name
     model._key = name
@@ -94,7 +83,6 @@ def update_model(m, annotations):
         return '-1'
 
     labeled = np.array(annotations)
-    # model=getattr(flask.current_app, 'model', None)
 
     if model['labeled'] is not None:
         # add the old docs to the new
@@ -110,7 +98,7 @@ def update_model(m, annotations):
 
     print('No. of features: ' + str(len(features)) + ' and No. of labels: ' + str(len(labeled)))
 
-    print np.unique(labeled)
+    print(np.unique(labeled))
     clf.fit(features, labeled, )
 
     # save the model
@@ -120,25 +108,15 @@ def update_model(m, annotations):
     else:
         model['url_details'] = url_details
     model['labeled'] = labeled.tolist()
-    # cv = dumps(count_vect,0)
-    # model['countvectorizer'] = base64.encodestring(dumps(count_vect,0))
-    # model['tfidftransformer'] = base64.encodestring(dumps(tfidftransformer,0))
-    # model['clf'] = base64.encodestring(dumps(clf,0))
     encoded_model = {'countvectorizer': count_vect, 'tfidftransformer': tfidftransformer, 'clf': clf}
     with open('/models/' + model['name'] + '.pickle', 'wb') as handle:
         pickle.dump(encoded_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    # setattr(flask.current_app, 'model', model)
     model.save()
     predicted = clf.predict(features)
     accuracy = (labeled == predicted).sum() / float(len(labeled))
 
-    # fname = 'model.pkl'
-    # joblib.dump(model, fname)
-
     dictionary = get_metrics(model)
     json_dictionary = json.dumps(dictionary)
-
-    # return str(accuracy)
     return json_dictionary
 
 
@@ -180,7 +158,7 @@ def predict(m, txt):
 
 def import_model():
     global accuracy
-    print 'importing'
+    print('importing')
     filename = 'model.pkl'
 
     if 'file' not in request.files:
@@ -191,9 +169,7 @@ def import_model():
         flash('No selected file')
         return '-1'
     if file:
-        # filename = secure_filename(file.filename)
         file.save(os.path.join(flask.current_app.root_path, flask.current_app.config['UPLOAD_FOLDER'], filename))
-        # return redirect(url_for('uploaded_file', filename=filename))
     else:
         flash('An error occurred while uploading the file')
         return '-1'
@@ -207,17 +183,14 @@ def import_model():
     dictionary = get_metrics(model)
     json_dictionary = json.dumps(dictionary)
 
-    # return str(accuracy)
     return json_dictionary
 
 
 def export_model(m):
-    # return flask.send_from_directory(directory=flask.current_app.root_path + '/../', filename=fname)
     return flask.send_from_directory(directory='/models/', filename=m + '.pickle')
 
 
 def check_model(m):
-    # model = getattr(flask.current_app, 'model', None)
     model = models[m]
     if model is None:
         return str(-1)
@@ -225,5 +198,4 @@ def check_model(m):
     dictionary = get_metrics(model)
     json_dictionary = json.dumps(dictionary)
 
-    # return str(0)
     return json_dictionary
