@@ -248,7 +248,7 @@ def upload_seed(model):
     else:
         pcmd = ["docker", "rm", model + "seed"]
         qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "seed",
-                "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd"] + cmd
+                "sparkler-crawl-environment/sparkler/sparkler:latest"] + cmd
         subprocess.call(pcmd)
         subprocess.Popen(qcmd)
         return "seed urls uploaded"
