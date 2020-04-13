@@ -35,7 +35,7 @@ def set_sparkler_options(model, content):
 
     activeplugins = ["urlfilter-regex", "urlfilter-samehost"]
     plugins = {"urlfilter.regex": {"urlfilter.regex.file": "regex-urlfilter.txt"},
-               "fetcher.jbrowser": {"socket.timeout": 3000, "connect.timeout": 3000}}
+               "fetcher.jbrowser": {"socket.timeout": 3000, "connect.timeout": 3000}, "scored.dd.svn": {"scorer.dd.svn.url": "http://sce-api:5000/classify/predict", "scorer.dd.svn.fallback": 0, "scorer.dd.svn.key": "svn_score"}}
 
     if "generate.topn" in content:
         topn = content['generate.topn']
@@ -53,7 +53,7 @@ def set_sparkler_options(model, content):
         activeplugins = content['plugins.active']
     if "plugins" in content:
         plugins = content['plugins']
-    content = {"crawldb.uri": "http://localhost:8983/solr/crawldb",
+    content = {"crawldb.uri": "http://sce-solr:8983/solr/crawldb",
                "spark.master": "local[*]",
                "kafka.enable": "false",
                "kafka.listeners": "localhost:9092",
