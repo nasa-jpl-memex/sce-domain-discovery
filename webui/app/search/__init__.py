@@ -82,15 +82,16 @@ def query_and_fetch(query, model, top_n=12, page=1):
     finally:
         try:
             if not bad_request:
-                result_size = len(results)
                 urls = []
                 for element in results:
                     new_url = element['href']
                     urls.append(new_url)
                 z = 0
-                while result_size > 0 and len(url_details) < top_n:
-                    fetched_result = Fetcher.fetch_multiple(urls, top_n)
-                    for fetched_data in fetched_result:
+                fetched_result = Fetcher.fetch_multiple(urls, None)
+                for fetched_data in fetched_result:
+                    if len(url_details) == 12:
+                        break
+                    else:
                         try:
                             if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
                                 app.logger.info("Continuing")
@@ -103,10 +104,8 @@ def query_and_fetch(query, model, top_n=12, page=1):
                             details['title'] = fetched_data[2]
                             details['label'] = predict(model, fetched_data[3])
                             try:
-                                print("http://localhost:8050/render.png?url=" + fetched_data[
-                                    0] + "&wait=5&width=320&height=240")
-                                imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[
-                                    0] + "&wait=5&width=320&height=240")
+                                print("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
+                                imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
                                 if imag.status_code == 200:
                                     u = str(uuid.uuid4())
                                     with open("/images/" + u + ".png", 'wb') as f:
@@ -122,13 +121,9 @@ def query_and_fetch(query, model, top_n=12, page=1):
                                 continue
                             url_details.append(details)
                             url_text.append(fetched_data[3])
-                            if len(url_details) == top_n:
-                                break
                         except:
                             print("catching timeout exception")
                             continue
-                    print(z)
-                    z = z + 1
         except Exception as e:
             app.logger.info(e)
             app.logger.info('An error occurred while searching query: ' + query + ' and fetching results')
