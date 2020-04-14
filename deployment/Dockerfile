@@ -1,18 +1,14 @@
+FROM python:2-buster
+RUN apt update && apt install -y docker.io
 
-# Pull base image.
+WORKDIR /projects/sce-domain-discovery/webui
 
-FROM ubuntu:bionic
-WORKDIR /projects/sce-domain-discovery/
-RUN apt-get update && \
-    apt-get install -y software-properties-common wget python python-setuptools python-pip python-dev
+COPY webui/requirements.txt /projects/sce-domain-discovery/webui/
 
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+RUN pip install -r requirements.txt && mkdir /models && mkdir /images
 
 COPY . /projects/sce-domain-discovery/
 
-WORKDIR /projects/sce-domain-discovery/webui
-RUN pip install -r requirements.txt && mkdir /models && mkdir /images
 
 CMD ["python", "run.py"]
 
