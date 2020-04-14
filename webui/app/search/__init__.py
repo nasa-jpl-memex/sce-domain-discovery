@@ -67,7 +67,7 @@ def get_url_window(query, top_n, page):
 def query_and_fetch(query, model, top_n=12, page=1):
     """Query Duck Duck Go (DDG) for top n results"""
     global url_details, url_text
-    print('Query: ' + query + '; Top N: ' + str(top_n))
+    app.logger.debug('Query: ' + query + '; Top N: ' + str(top_n))
     url_details = []
     url_text = []
     bad_request = False
@@ -79,54 +79,49 @@ def query_and_fetch(query, model, top_n=12, page=1):
         app.logger.info(traceback.format_exc())
         bad_request = True
 
-    finally:
-        try:
-            if not bad_request:
-                urls = []
-                for element in results:
-                    new_url = element['href']
-                    urls.append(new_url)
-                z = 0
-                fetched_result = Fetcher.fetch_multiple(urls, None)
-                for fetched_data in fetched_result:
-                    if len(url_details) == 12:
-                        break
-                    else:
-                        try:
-                            if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
-                                app.logger.info("Continuing")
-                                continue
+    if not bad_request:
+        urls = []
+        for element in results:
+            new_url = element['href']
+            urls.append(new_url)
+        fetched_result = Fetcher.fetch_multiple(urls, None)
+        for fetched_data in fetched_result:
+            if len(url_details) == 12:
+                break
+            else:
+                try:
+                    if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
+                        app.logger.info("Continuing")
+                        continue
 
-                            app.logger.info("Extracting URL: " + fetched_data[0])
-                            details = dict()
-                            details['url'] = fetched_data[0]
-                            details['html'] = fetched_data[1]
-                            details['title'] = fetched_data[2]
-                            details['label'] = predict(model, fetched_data[3])
-                            try:
-                                print("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
-                                imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
-                                if imag.status_code == 200:
-                                    u = str(uuid.uuid4())
-                                    with open("/images/" + u + ".png", 'wb') as f:
-                                        f.write(imag.content)
-                                    details['image'] = "/images/" + u + ".png"
+                    app.logger.info("Extracting URL: " + fetched_data[0])
+                    details = dict()
+                    details['url'] = fetched_data[0]
+                    details['html'] = fetched_data[1]
+                    details['title'] = fetched_data[2]
+                    details['label'] = predict(model, fetched_data[3])
+                    try:
+                        print("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
+                        imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
+                        if imag.status_code == 200:
+                            u = str(uuid.uuid4())
+                            with open("/images/" + u + ".png", 'wb') as f:
+                                f.write(imag.content)
+                            details['image'] = "/images/" + u + ".png"
 
-                                    with open(details['image'], "rb") as image_file:
-                                        encoded_string = base64.b64encode(image_file.read())
-                                        details['image'] = encoded_string.decode()
+                            with open(details['image'], "rb") as image_file:
+                                encoded_string = base64.b64encode(image_file.read())
+                                details['image'] = encoded_string.decode()
 
-                            except Exception as e:
-                                app.logger.info(e)
-                                continue
-                            url_details.append(details)
-                            url_text.append(fetched_data[3])
-                        except:
-                            print("catching timeout exception")
-                            continue
-        except Exception as e:
-            app.logger.info(e)
-            app.logger.info('An error occurred while searching query: ' + query + ' and fetching results')
+                    except Exception as e:
+                        app.logger.info(e)
+                        continue
+                    url_details.append(details)
+                    url_text.append(fetched_data[3])
+                except:
+                    print("catching timeout exception")
+                    app.log.debug("catching exception down here!")
+                    continue
 
     try:
         model = models[model]
