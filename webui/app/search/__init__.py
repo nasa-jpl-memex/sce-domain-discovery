@@ -118,9 +118,9 @@ def query_and_fetch(query, model, top_n=12, page=1):
                         continue
                     url_details.append(details)
                     url_text.append(fetched_data[3])
-                except:
+                except Exception as e:
                     print("catching timeout exception")
-                    app.log.debug("catching exception down here!")
+                    app.logger.debug("catching exception down here! "+ str(e))
                     continue
 
     try:
