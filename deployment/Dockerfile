@@ -10,5 +10,5 @@ RUN pip install -r requirements.txt && mkdir /models && mkdir /images
 COPY . /projects/sce-domain-discovery/
 
 
-CMD ["python", "run.py"]
+CMD ["python", "waitress_server.py"]
 
