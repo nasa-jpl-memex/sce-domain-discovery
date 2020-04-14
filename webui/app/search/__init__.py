@@ -67,7 +67,7 @@ def get_url_window(query, top_n, page):
 def query_and_fetch(query, model, top_n=12, page=1):
     """Query Duck Duck Go (DDG) for top n results"""
     global url_details, url_text
-    app.logger.debug('Query: ' + query + '; Top N: ' + str(top_n))
+    app.logger.debug('Query456: ' + query + '; Top N: ' + str(top_n))
     url_details = []
     url_text = []
     bad_request = False
@@ -140,7 +140,7 @@ def query_and_fetch(query, model, top_n=12, page=1):
 
 def query(q, top_n=12):
     """Query Duck Duck Go (DDG) for top n results"""
-    print('Query: ' + q + '; Top N: ' + str(top_n))
+    print('Query123: ' + q + '; Top N: ' + str(top_n))
 
     driver = None
     bad_request = False
