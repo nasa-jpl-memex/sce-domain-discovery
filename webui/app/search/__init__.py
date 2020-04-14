@@ -104,9 +104,9 @@ def query_and_fetch(query, model, top_n=12, page=1):
                         details['label'] = predict(model, fetched_data[3])
                         try:
                             print("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
-                            imag = requests.get("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
+                            #imag = requests.get("http://localhost:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
 
-                            #imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
+                            imag = requests.get("http://sce-splash:8050/render.png?url=" + fetched_data[0] + "&wait=5&width=320&height=240")
 
                             if imag.status_code == 200:
                                 u = str(uuid.uuid4())
