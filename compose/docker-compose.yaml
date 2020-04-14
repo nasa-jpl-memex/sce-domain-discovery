@@ -29,7 +29,7 @@ services:
       - WEBDRIVER_URL=http://sce-chrome:3000/webdriver
       - ARANGO_URL=http://single-server-int:8529
       - RUNNING_KUBERNETES=false
-    command: ["./wait-for-it.sh", "single-server-int:8529", "--", "python", "run.py"]
+    command: ["./wait-for-it.sh", "single-server-int:8529", "--", "python", "waitress_server.py"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock    
       - models:/models
