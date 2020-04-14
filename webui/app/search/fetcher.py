@@ -7,8 +7,10 @@ import threading
 import Queue
 import re
 import os
+import logging
 
-
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("chardet").setLevel(logging.WARNING)
 class Fetcher(object):
     """Fetching Capability using Selenium"""
 
