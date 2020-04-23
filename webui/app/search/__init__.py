@@ -24,6 +24,10 @@ URL_TEXT = []
 def get_url_window(query, top_n, page):
     """
     Get the contents of a duck duck go query.
+    :param query:
+    :param top_n:
+    :param page:
+    :return:
     """
     bad_request = False
     start_pos = top_n * (page - 1)
@@ -57,7 +61,12 @@ def get_url_window(query, top_n, page):
     return []
 
 def parse_details(model, fetched_data):
-    """Parse query details"""
+    """
+    Parse query details
+    :param model:
+    :param fetched_data:
+    :return:
+    """
     details = dict()
     details['url'] = fetched_data[0]
     details['html'] = fetched_data[1]
@@ -85,7 +94,13 @@ def parse_details(model, fetched_data):
     return details
 
 def update_model(model, url_text, url_details):
-    """Update the search model"""
+    """
+    Update the search model
+    :param model:
+    :param url_text:
+    :param url_details:
+    :return:
+    """
     try:
         dbmodel = get_connection()[model]
         dbmodel['url_text'] = url_text
@@ -99,6 +114,11 @@ def update_model(model, url_text, url_details):
 def query_and_fetch(query, model, top_n=12, page=1):
     """
     Query a result list and fetch the data within them.
+    :param query:
+    :param model:
+    :param top_n:
+    :param page:
+    :return:
     """
     app.logger.debug('Query: ' + query + '; Top N: ' + str(top_n))
     url_details = []

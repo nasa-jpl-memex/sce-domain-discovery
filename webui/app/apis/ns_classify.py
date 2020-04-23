@@ -15,7 +15,12 @@ class Predict(Resource):
     @API.doc('predict')
     @staticmethod
     def get(content, model):
-        """Predict using ML model"""
+        """
+        Predict using ML model
+        :param content:
+        :param model:
+        :return:
+        """
         classes = {
             -1: 'Model doesn\'t exist',
             0: 'Not Relevant',
@@ -31,7 +36,10 @@ class Predict(Resource):
     @API.doc('predict')
     @staticmethod
     def post():
-        """Predict using ML model"""
+        """
+        Predict using ML model
+        :return:
+        """
         classes = {
             -1: 'Model doesn\'t exist',
             0: 'Not Relevant',

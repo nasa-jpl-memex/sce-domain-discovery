@@ -26,6 +26,7 @@ def get_database():
 def get_connection():
     """
     Get a connection and list of models.
+    :return:
     """
     if not CONN.hasDatabase('sce'):
         database = CONN.createDatabase('sce')
@@ -42,6 +43,8 @@ def get_connection():
 def set_sparkler_defaults(model):
     """
     Create a model with the defaul options.
+    :param model:
+    :return:
     """
     set_sparkler_options(model, {})
 
@@ -49,6 +52,9 @@ def set_sparkler_defaults(model):
 def set_sparkler_options(model, content):
     """
     Create a new set of sparkler options for the model.
+    :param model:
+    :param content:
+    :return:
     """
     topn = 1000
     topgrp = 256
@@ -108,6 +114,8 @@ def set_sparkler_options(model, content):
 def get_sparkler_options(model):
     """
     Get the current sparkler options.
+    :param model:
+    :return:
     """
     try:
         db_model = get_connection()[model]
@@ -120,7 +128,10 @@ def get_sparkler_options(model):
 def update_seed_urls(model, urls):
     """
     Update the seed urls for a model.
-    """
+    :param model:
+    :param urls:
+    :return:
+    """''
     try:
         db_model = get_connection()[model]
         old_urls = db_model['seeds']
@@ -137,6 +148,8 @@ def update_seed_urls(model, urls):
 def fetch_seeds(model):
     """
     Get the seed urls for a model.
+    :param model:
+    :return:
     """
     try:
         db_model = get_connection()[model]
@@ -147,7 +160,10 @@ def fetch_seeds(model):
         raise
 
 def get_models():
-    """Get a list of models"""
+    """
+    Get a list of models
+    :return:
+    """
     aql = 'FOR model IN models RETURN {name: model.name}'
     query_result = get_database().AQLQuery(aql, rawResults=True, batchSize=1)
     return list(query_result)

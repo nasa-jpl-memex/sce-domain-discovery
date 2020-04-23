@@ -20,7 +20,12 @@ class Search(Resource):
     @cors.crossdomain(origin='*')
     @staticmethod
     def get(model, query):
-        """Search Duck Duck Go"""
+        """
+        Search Duck Duck Go
+        :param model:
+        :param query:
+        :return:
+        """
         a.logger.debug('Search Called!')
         try:
             url_details = search.query_and_fetch(query, model, top_n=12)
@@ -40,7 +45,13 @@ class SearchPaginated(Resource):
     @cors.crossdomain(origin='*')
     @staticmethod
     def get(model, query, page):
-        """Search Duck Duck Go"""
+        """
+        Search Duck Duck Go
+        :param model:
+        :param query:
+        :param page:
+        :return:
+        """
         a.logger.debug('Paged Search Called!')
         try:
             url_details = search.query_and_fetch(query, model, page=int(page), top_n=12)
