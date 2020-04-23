@@ -1,4 +1,4 @@
-FROM python:2-buster
+FROM python:3-buster
 RUN apt update && apt install -y docker.io
 
 WORKDIR /projects/sce-domain-discovery/webui

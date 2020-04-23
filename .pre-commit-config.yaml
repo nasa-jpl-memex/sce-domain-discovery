@@ -7,10 +7,15 @@ repos:
     -   id: trailing-whitespace
     -   id: check-merge-conflict
     -   id: double-quote-string-fixer
--   repo: local
-    hooks:
-    -   id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
+- repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+  rev: v0.1.0
+  hooks:
+  - id: dockerfilelint
+    stages: [commit]
+- repo: local
+  hooks:
+  -   id: pylint
+      name: pylint
+      entry: pylint
+      language: system
+      types: [python]
