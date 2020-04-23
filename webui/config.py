@@ -17,10 +17,10 @@ CSRF_ENABLED = True
 
 # Use a secure, unique and absolutely secret key for
 # signing the data.
-CSRF_SESSION_KEY = "secretDD"
+CSRF_SESSION_KEY = 'secretDD'
 
 # Secret key for signing cookies
-SECRET_KEY = "secretDD"
+SECRET_KEY = 'secretDD'
 
 # Path to the uploads
 UPLOAD_FOLDER = '..'

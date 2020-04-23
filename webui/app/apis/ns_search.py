@@ -21,7 +21,7 @@ class Search(Resource):
     @staticmethod
     def get(model, query):
         """Search Duck Duck Go"""
-        a.logger.debug("Search Called!")
+        a.logger.debug('Search Called!')
         try:
             url_details = search.query_and_fetch(query, model, top_n=12)
         except DocumentNotFoundError as exception:
@@ -41,7 +41,7 @@ class SearchPaginated(Resource):
     @staticmethod
     def get(model, query, page):
         """Search Duck Duck Go"""
-        a.logger.debug("Paged Search Called!")
+        a.logger.debug('Paged Search Called!')
         try:
             url_details = search.query_and_fetch(query, model, page=int(page), top_n=12)
         except DocumentNotFoundError as exception:

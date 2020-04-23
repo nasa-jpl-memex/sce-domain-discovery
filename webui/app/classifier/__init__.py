@@ -19,12 +19,12 @@ from app.models.model import set_sparkler_defaults, get_connection
 def load_vocab():
     """Load Vocabulary"""
     if os.path.exists('keywords.txt'):
-        with open("keywords.txt", 'rb') as file:
+        with open('keywords.txt', 'rb') as file:
             keywords_content = file.read()
     else:
-        with open("keywords.txt", 'wb') as fwrite:
-            fwrite.write("This is a test")
-            keywords_content = "This is a test"
+        with open('keywords.txt', 'wb') as fwrite:
+            fwrite.write('This is a test')
+            keywords_content = 'This is a test'
     count_vect = CountVectorizer(lowercase=True, stop_words='english')
     count_vect.fit_transform([keywords_content])
     keywords = count_vect.vocabulary_
@@ -39,8 +39,8 @@ def new_model(name_label):
     :return:
     """
     obj = {
-        "name": name_label,
-        "_key": name_label
+        'name': name_label,
+        '_key': name_label
     }
     model = get_connection().createDocument(obj)
     model.save()
@@ -143,10 +143,10 @@ def predict(model_name, txt):
     # if 'countvectorizer' in encoded_model:
     #     test = encoded_model['countvectorizer']
     if model is None:
-        app.logger.info("Model not found")
+        app.logger.info('Model not found')
         return -1
     if 'countvectorizer' not in encoded_model or encoded_model['countvectorizer'] is None:
-        app.logger.info("No Count Vectorizer")
+        app.logger.info('No Count Vectorizer')
         return -1
 
     app.logger.info('Sorting Count Vectorizer out ' + model['name'])
@@ -167,7 +167,7 @@ def import_model(model_name):
     :param model_name:
     :return:
     """
-    print("importing model: "+model_name)
+    print('importing model: '+model_name)
     print('importing')
     filename = 'model.pkl'
 

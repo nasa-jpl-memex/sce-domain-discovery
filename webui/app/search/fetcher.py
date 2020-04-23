@@ -3,8 +3,8 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("chardet").setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('chardet').setLevel(logging.WARNING)
 
 
 class Fetcher:
@@ -15,22 +15,22 @@ class Fetcher:
 
     @staticmethod
     def cleantext(soup):
-        "Clean up the text from the extract"
-        for script in soup(["script", "style"]):
+        'Clean up the text from the extract'
+        for script in soup(['script', 'style']):
             script.extract()  # rip it out
         text = soup.get_text()
         lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        chunks = (phrase.strip() for line in lines for phrase in line.split('  '))
         text = '\n'.join(chunk for chunk in chunks if chunk)
         text = text.replace('\n', ' ')
         return text.encode('utf-8')
 
     @staticmethod
     def clean_string(text):
-        "Clean up a single string"
+        'Clean up a single string'
         try:
             lines = (line.strip() for line in text.splitlines())
-            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            chunks = (phrase.strip() for line in lines for phrase in line.split('  '))
             text = '\n'.join(chunk for chunk in chunks if chunk)
             text = text.replace('\n', ' ')
             return str(text)
@@ -39,7 +39,7 @@ class Fetcher:
 
     @staticmethod
     def read_url2(url):
-        "Read teh supplied url"
+        'Read teh supplied url'
         # res = urlopen(url)
         # data = res.read()
         data = requests.get(url).content
@@ -57,7 +57,7 @@ class Fetcher:
 
     @staticmethod
     def fetch_multiple(urls, top_n):
-        "Fetch a bunch of urls"
+        'Fetch a bunch of urls'
         # result = Fetcher.parallel(urls, top_n)
         print(top_n)
         result = []

@@ -40,7 +40,7 @@ class Predict(Resource):
         }
         result = -1
         data = request.data
-        loaded_data = json.loads(data.decode("utf-8", "ignore"))
+        loaded_data = json.loads(data.decode('utf-8', 'ignore'))
         if len(data) != 0:
             content = loaded_data['score'][0]['content']
             model = loaded_data['score'][0]['model']

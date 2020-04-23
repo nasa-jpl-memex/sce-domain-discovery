@@ -28,14 +28,14 @@ def get_url_window(query, top_n, page):
     bad_request = False
     start_pos = top_n * (page - 1)
     end_pos = start_pos + top_n
-    output = ""
+    output = ''
     app.logger.info('Processing get url request ' + query)
     query = urllib.parse.quote(query)
-    search_url = "http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com" \
-                 "%2F%3Fq%3D" + query + "%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%2" \
-                 "6ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%" \
-                 "3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26" \
-                 "kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5"
+    search_url = 'http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com' \
+                 '%2F%3Fq%3D' + query + '%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%2' \
+                 '6ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%' \
+                 '3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26' \
+                 'kv%3D-1%26kav%3D1%26t%3Dhk%26ia%3Dnews&wait=5'
     try:
         output = requests.get(search_url).content
     except requests.exceptions.RequestException as exception:
@@ -46,7 +46,7 @@ def get_url_window(query, top_n, page):
     #try:
     if not bad_request:
         soup = BeautifulSoup(output, 'html.parser')
-        results = soup.findAll("a", {"class": "result__a"})
+        results = soup.findAll('a', {'class': 'result__a'})
         result_size = len(results)
         app.logger.info('Results Found ' + str(result_size))
         return results[start_pos:end_pos]
@@ -63,21 +63,21 @@ def parse_details(model, fetched_data):
     details['html'] = fetched_data[1]
     details['title'] = fetched_data[2]
     details['label'] = predict(model, fetched_data[3])
-    print("http://localhost:8050/render.png?url="
+    print('http://localhost:8050/render.png?url='
           + fetched_data[0] +
-          "&wait=5&width=320&height=240")
+          '&wait=5&width=320&height=240')
 
-    imag = requests.get("http://sce-splash:8050/render.png?url="
+    imag = requests.get('http://sce-splash:8050/render.png?url='
                         + fetched_data[0] +
-                        "&wait=5&width=320&height=240")
+                        '&wait=5&width=320&height=240')
 
     if imag.status_code == 200:
         uuid = str(uuid.uuid4())
-        with open("/images/" + uuid + ".png", 'wb') as file:
+        with open('/images/' + uuid + '.png', 'wb') as file:
             file.write(imag.content)
-        details['image'] = "/images/" + uuid + ".png"
+        details['image'] = '/images/' + uuid + '.png'
 
-        with open(details['image'], "rb") as image_file:
+        with open(details['image'], 'rb') as image_file:
             encoded_string = base64.b64encode(image_file.read())
             details['image'] = encoded_string.decode()
 
@@ -119,9 +119,9 @@ def query_and_fetch(query, model, top_n=12, page=1):
                     break
 
                 if not fetched_data[1] or len(fetched_data[1].strip()) == 0:
-                    app.logger.info("Continuing")
+                    app.logger.info('Continuing')
                     continue
-                app.logger.info("Extracting URL: " + fetched_data[0])
+                app.logger.info('Extracting URL: ' + fetched_data[0])
                 url_details.append(parse_details(model, fetched_data))
                 url_text.append(fetched_data[3])
 

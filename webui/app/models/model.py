@@ -16,10 +16,10 @@ def get_database():
     Get the database object
     :return: The database
     """
-    if not CONN.hasDatabase("sce"):
-        database = CONN.createDatabase("sce")
+    if not CONN.hasDatabase('sce'):
+        database = CONN.createDatabase('sce')
     else:
-        database = CONN["sce"]
+        database = CONN['sce']
 
     return database
 
@@ -27,10 +27,10 @@ def get_connection():
     """
     Get a connection and list of models.
     """
-    if not CONN.hasDatabase("sce"):
-        database = CONN.createDatabase("sce")
+    if not CONN.hasDatabase('sce'):
+        database = CONN.createDatabase('sce')
     else:
-        database = CONN["sce"]
+        database = CONN['sce']
 
     if not database.hasCollection('models'):
         models = database.createCollection('Collection', name='models')
@@ -52,50 +52,50 @@ def set_sparkler_options(model, content):
     """
     topn = 1000
     topgrp = 256
-    sortby = "discover_depth asc, score asc"
-    groupby = "group"
+    sortby = 'discover_depth asc, score asc'
+    groupby = 'group'
     serverdelay = 1000
-    fetchheaders = [{"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6)"
-                                   " AppleWebKit/537.36 (KHTML, like Gecko) Sparkler"},
-                    {"Accept": "text/html,application/xhtml+xml,"
-                               "application/xml;q=0.9,image/webp,*/*;q=0.8"},
-                    {"Accept-Language": "en-US,en"}]
+    fetchheaders = [{'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6)'
+                                   ' AppleWebKit/537.36 (KHTML, like Gecko) Sparkler'},
+                    {'Accept': 'text/html,application/xhtml+xml,'
+                               'application/xml;q=0.9,image/webp,*/*;q=0.8'},
+                    {'Accept-Language': 'en-US,en'}]
 
-    activeplugins = ["urlfilter-regex", "urlfilter-samehost", "score-dd-svn"]
-    plugins = {"urlfilter.regex": {"urlfilter.regex.file": "regex-urlfilter.txt"},
-               "fetcher.jbrowser": {"socket.timeout": 3000, "connect.timeout": 3000},
-               "scored.dd.svn": {"scorer.dd.svn.url": "http://sce-api:5000/classify/predict",
-                                 "scorer.dd.svn.fallback": 0, "scorer.dd.svn.key": "svn_score"}}
+    activeplugins = ['urlfilter-regex', 'urlfilter-samehost', 'score-dd-svn']
+    plugins = {'urlfilter.regex': {'urlfilter.regex.file': 'regex-urlfilter.txt'},
+               'fetcher.jbrowser': {'socket.timeout': 3000, 'connect.timeout': 3000},
+               'scored.dd.svn': {'scorer.dd.svn.url': 'http://sce-api:5000/classify/predict',
+                                 'scorer.dd.svn.fallback': 0, 'scorer.dd.svn.key': 'svn_score'}}
 
-    if "generate.topn" in content:
+    if 'generate.topn' in content:
         topn = content['generate.topn']
-    if "generate.top.groups" in content:
+    if 'generate.top.groups' in content:
         topgrp = content['generate.top.groups']
-    if "generate.sortby" in content:
+    if 'generate.sortby' in content:
         sortby = content['generate.sortby']
-    if "generate.groupby" in content:
+    if 'generate.groupby' in content:
         groupby = content['generate.groupby']
-    if "fetcher.server.delay" in content:
+    if 'fetcher.server.delay' in content:
         serverdelay = content['fetcher.server.delay']
-    if "fetcher.headers" in content:
+    if 'fetcher.headers' in content:
         fetchheaders = content['fetcher.headers']
-    if "plugins.active" in content:
+    if 'plugins.active' in content:
         activeplugins = content['plugins.active']
-    if "plugins" in content:
+    if 'plugins' in content:
         plugins = content['plugins']
-    content = {"crawldb.uri": "http://sce-solr:8983/solr/crawldb",
-               "spark.master": "local[*]",
-               "kafka.enable": "false",
-               "kafka.listeners": "localhost:9092",
-               "kafka.topic": "sparkler_%s",
-               "generate.topn": topn,
-               "generate.top.groups": topgrp,
-               "generate.sortby": sortby,
-               "generate.groupby": groupby,
-               "fetcher.server.delay": serverdelay,
-               "fetcher.headers": fetchheaders,
-               "plugins.active": activeplugins,
-               "plugins": plugins}
+    content = {'crawldb.uri': 'http://sce-solr:8983/solr/crawldb',
+               'spark.master': 'local[*]',
+               'kafka.enable': 'false',
+               'kafka.listeners': 'localhost:9092',
+               'kafka.topic': 'sparkler_%s',
+               'generate.topn': topn,
+               'generate.top.groups': topgrp,
+               'generate.sortby': sortby,
+               'generate.groupby': groupby,
+               'fetcher.server.delay': serverdelay,
+               'fetcher.headers': fetchheaders,
+               'plugins.active': activeplugins,
+               'plugins': plugins}
     try:
         db_model = get_connection()[model]
         db_model['sparkler_opts'] = content
@@ -148,6 +148,6 @@ def fetch_seeds(model):
 
 def get_models():
     """Get a list of models"""
-    aql = "FOR model IN models RETURN {name: model.name}"
+    aql = 'FOR model IN models RETURN {name: model.name}'
     query_result = get_database().AQLQuery(aql, rawResults=True, batchSize=1)
     return list(query_result)
