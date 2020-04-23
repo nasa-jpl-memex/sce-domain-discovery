@@ -1,15 +1,20 @@
+"""
+Classify Endpoints for the REST API.
+"""
+import json
 from flask_restplus import Namespace, Resource
 from flask import request
 from app import classifier
-import json
 
-api = Namespace('classify', description='Interact with the ML model')
+API = Namespace('classify', description='Interact with the ML model')
 
 
-@api.route('/predict', methods=['GET', 'POST'])
+@API.route('/predict', methods=['GET', 'POST'])
 class Predict(Resource):
-    @api.doc('predict')
-    def get(self, content, model):
+    """Predict a result"""
+    @API.doc('predict')
+    @staticmethod
+    def get(content, model):
         """Predict using ML model"""
         classes = {
             -1: 'Model doesn\'t exist',
@@ -18,14 +23,14 @@ class Predict(Resource):
             2: 'Highly Relevant'
         }
         args = request.args
-        print (args)
         if len(args) != 0:
             content = args['content']
         result = classifier.predict(model, content)
         return classes[result]
 
-    @api.doc('predict')
-    def post(self):
+    @API.doc('predict')
+    @staticmethod
+    def post():
         """Predict using ML model"""
         classes = {
             -1: 'Model doesn\'t exist',
@@ -35,9 +40,9 @@ class Predict(Resource):
         }
         result = -1
         data = request.data
-        d = json.loads(data.decode("utf-8", "ignore"))
+        loaded_data = json.loads(data.decode("utf-8", "ignore"))
         if len(data) != 0:
-            content = d['score'][0]['content']
-            model = d['score'][0]['model']
+            content = loaded_data['score'][0]['content']
+            model = loaded_data['score'][0]['model']
             result = classifier.predict(model, content)
         return classes[result]

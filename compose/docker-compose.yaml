@@ -31,13 +31,13 @@ services:
       - RUNNING_KUBERNETES=false
     command: ["./wait-for-it.sh", "single-server-int:8529", "--", "python", "waitress_server.py"]
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock    
+      - /var/run/docker.sock:/var/run/docker.sock
       - models:/models
   sce-ui:
     image: uscdatascience/sparkler-ui:latest
     ports:
       - "8080:80"
-    
+
 volumes:
  data:
  db:

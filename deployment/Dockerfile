@@ -11,4 +11,3 @@ COPY . /projects/sce-domain-discovery/
 
 
 CMD ["python", "waitress_server.py"]
-

@@ -1,26 +1,28 @@
-# Import flask and template operators
-from flask import Flask
-from app.apis import api
+"""Bootstrap the API"""
+
 import logging
-from sklearn.externals import joblib
-import os
+
+from flask import Flask
+# Import a module / component using its blueprint handler variable
+from app.controller import MOD_APP as app_module
+# Import flask and template operators
+from app.apis import API_OBJ
 
 # Define the WSGI application object
-app = Flask(__name__,
+APP = Flask(__name__,
             static_url_path='',
             static_folder='static')
 
 logging.basicConfig(level=logging.DEBUG)
 
 # Configurations
-app.config.from_object('config')
+APP.config.from_object('config')
 
-# Import a module / component using its blueprint handler variable
-from app.controller import mod_app as app_module
+
 
 # Register blueprint(s)
-app.register_blueprint(app_module)
+APP.register_blueprint(app_module)
 
 
 # Initialize flask-restplus
-api.init_app(app)
+API_OBJ.init_app(APP)

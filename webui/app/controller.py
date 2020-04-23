@@ -1,47 +1,53 @@
-import requests
-from app import classifier
-from flask import Blueprint, request, send_from_directory, jsonify
-from flask_cors import CORS
+"""Controller API routes"""
 import os
 import subprocess
-from models.model import get_sparkler_options, set_sparkler_options, update_seed_urls, fetch_seeds
-import yaml
 import json
+import requests
+from flask import Blueprint, request, send_from_directory, jsonify
+from flask_cors import CORS
+import yaml
+from app import classifier
 
 # Define Blueprint(s)
-mod_app = Blueprint('application', __name__, url_prefix='/explorer-api')
-CORS(mod_app)
+from app.models import model as model_controller
+from app.models.model import get_sparkler_options, set_sparkler_options, \
+    update_seed_urls, fetch_seeds
 
-k8s = os.getenv('RUNNING_KUBERNETES', 'true')
+
+MOD_APP = Blueprint('application', __name__, url_prefix='/explorer-api')
+CORS(MOD_APP)
+
+K8S = os.getenv('RUNNING_KUBERNETES', 'true')
 
 
 # Define Controller(s)
-@mod_app.route('/')
+@MOD_APP.route('/')
 def index():
+    """Index route"""
     return send_from_directory('static/pages', 'index.html')
 
 
-@mod_app.route('/classify/createnew/<model>', methods=['GET'])
+@MOD_APP.route('/classify/createnew/<model>', methods=['GET'])
 def create_new_model(model):
-    ## TODO need to deal with naming models
-    print("here")
+    """Create a new model"""
     # classifier.clear_model()
     classifier.new_model(model)
-    return ("done")
+    return "done"
 
 
-@mod_app.route('/classify/listmodels', methods=['GET'])
+@MOD_APP.route('/classify/listmodels', methods=['GET'])
 def list_models():
-    return jsonify(classifier.get_models())
+    """List the models"""
+    return jsonify(model_controller.get_models())
 
 
 # POST Requests
-@mod_app.route('/classify/update/<model>', methods=['POST'])
+@MOD_APP.route('/classify/update/<model>', methods=['POST'])
 def build_model(model):
-    ## TODO Specify model
+    """Build the model"""
     annotations = []
     data = request.get_json()
-    for key, value in data.iteritems():
+    for _, value in data.iteritems():
         annotations.append(int(value))
     # for item in data.split('&'):
     #    annotations.append(int(item.split('=')[1]))
@@ -50,214 +56,251 @@ def build_model(model):
     return accuracy
 
 
-@mod_app.route('/classify/upload/<model>', methods=['POST'])
+@MOD_APP.route('/classify/upload/<model>', methods=['POST'])
 def upload_model(model):
-    ## TODO Specify model
+    """Upload Model"""
     return classifier.import_model(model)
 
 
-@mod_app.route('/classify/download/<model>', methods=['GET'])
+@MOD_APP.route('/classify/download/<model>', methods=['GET'])
 def download_model(model):
-    ## TODO Specify model
+    """Download Model"""
     return classifier.export_model(model)
 
 
-@mod_app.route('/classify/exist/<model>', methods=['POST'])
+@MOD_APP.route('/classify/exist/<model>', methods=['POST'])
 def check_model(model):
+    """CHeck model"""
     return classifier.check_model(model)
 
 
-@mod_app.route('/classify/stats/<model>', methods=['GET'])
+@MOD_APP.route('/classify/stats/<model>', methods=['GET'])
 def model_stats(model):
+    """Check the Model"""
     return classifier.check_model(model)
 
 
-@mod_app.route('/cmd/crawler/exist/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/crawler/exist/<model>', methods=['POST'])
 def check_crawl_exists(model):
-    ## TODO Specify model
-    ## TODO FIX URL for scale out
+    """Check The Crawl Exists"""
+    print("We need to do something with the model:" +model)
     return requests.post("http://sparkler:6000/cmd/crawler/exist/").text
 
 
-@mod_app.route('/cmd/crawler/settings/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/crawler/settings/<model>', methods=['POST'])
 def set_sparkler_config(model):
+    """Set Sparkler Configuration"""
     content = request.json
     set_sparkler_options(model, content)
     return "config updated"
 
 
-@mod_app.route('/cmd/crawler/settings/<model>', methods=['GET'])
+@MOD_APP.route('/cmd/crawler/settings/<model>', methods=['GET'])
 def get_sparkler_config(model):
+    """Get Sparkler Configuration"""
     content = get_sparkler_options(model).getStore()
     return json.dumps(content)
 
 
-@mod_app.route('/cmd/crawler/crawl/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/crawler/crawl/<model>', methods=['POST'])
 def start_crawl(model):
+    """Start Crawl"""
     crawl_opts = request.json
     content = get_sparkler_options(model).getStore()
 
     cmd_params = ''
     if crawl_opts is not None:
-        if ('iterations' in crawl_opts):
+        if 'iterations' in crawl_opts:
             cmd_params += '-i ' + str(crawl_opts['iterations'])
 
-        if ('topgroups' in crawl_opts):
+        if 'topgroups' in crawl_opts:
             cmd_params += ' -tg' + str(crawl_opts['topgroups'])
 
-        if ('topn' in crawl_opts):
+        if 'topn' in crawl_opts:
             cmd_params += ' -tn ' + str(crawl_opts['topn'])
+
     cmd = ["bash", "-c", "echo \'" + yaml.safe_dump(
-        content) + "\' > /data/sparkler/conf/sparkler-default.yaml && /data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb -id " + model + " " + cmd_params]
+        content) + "\' > /data/sparkler/conf/sparkler-default.yaml && "
+                   "/data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb "
+                   "-id " + model + " " + cmd_params]
     print(cmd)
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
+        if file.mode == 'r':
+            token = file.read()
 
         requests.delete(
-            'https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/' + model + "crawl",
-            headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
-        json = {"kind": "Pod", "apiVersion": "v1",
-                "metadata": {"name": model + "crawl", "labels": {"run": model + "seed"}}, "spec": {
-                "containers": [
-                    {"name": model + "crawl",
-                     "image": "uscdatascience/sparkler:latest",
-                     "command": cmd,
-                     "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-        requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json,
-                      headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
-        return "crawl started"
-    else:
-        print("Removing old container")
-        pcmd = ["docker", "rm", model + "crawl"]
-        subprocess.call(pcmd)
-        print("Pulling latest")
-        qcmd = ["docker", "pull", "uscdatascience/sparkler:latest"]
-        subprocess.Popen(qcmd)
-        print("Running container")
-        qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "crawl",
-                "uscdatascience/sparkler:latest"] + cmd
-        subprocess.Popen(qcmd)
+            'https://kubernetes.default.svc.cluster.local/api/v1/'
+            'namespaces/default/pods/' + model + "crawl",
+            headers={"content-type": "application/json",
+                     "Authorization": "Bearer " + token}, verify=False)
+        json_tpl = {"kind": "Pod", "apiVersion": "v1",
+                    "metadata": {"name": model + "crawl",
+                                 "labels": {"run": model + "seed"}},
+                    "spec": {
+                        "containers": [
+                            {"name": model + "crawl",
+                             "image": "uscdatascience/sparkler:latest",
+                             "command": cmd,
+                             "resources": {}}], "restartPolicy": "Never",
+                        "dnsPolicy": "ClusterFirst"}, "status": {}}
+        requests.post('https://kubernetes.default.svc.cluster.local/'
+                      'api/v1/namespaces/default/pods', json=json_tpl,
+                      headers={"content-type": "application/json",
+                               "Authorization": "Bearer " + token}, verify=False)
         return "crawl started"
 
+    print("Removing old container")
+    pcmd = ["docker", "rm", model + "crawl"]
+    subprocess.call(pcmd)
+    print("Pulling latest")
+    qcmd = ["docker", "pull", "uscdatascience/sparkler:latest"]
+    subprocess.Popen(qcmd)
+    print("Running container")
+    qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "crawl",
+            "uscdatascience/sparkler:latest"] + cmd
+    subprocess.Popen(qcmd)
+    return "crawl started"
 
-@mod_app.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
+
+@MOD_APP.route('/cmd/crawler/crawl/<model>', methods=['DELETE'])
 def stop_crawl(model):
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    """Stop Crawl"""
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
+        if file.mode == 'r':
+            token = file.read()
 
         requests.delete(
-            'https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/' + model + "crawl",
-            headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
+            'https://kubernetes.default.svc.cluster.local/api/v1/'
+            'namespaces/default/pods/' + model + "crawl",
+            headers={"content-type": "application/json",
+                     "Authorization": "Bearer " + token}, verify=False)
 
         return "crawl ended"
-    else:
-        qcmd = ["docker", "stop", model + "crawl"]
-        subprocess.call(qcmd)
-        return "crawl ended"
+
+    qcmd = ["docker", "stop", model + "crawl"]
+    subprocess.call(qcmd)
+    return "crawl ended"
 
 
-@mod_app.route('/cmd/crawler/crawler/<model>', methods=['GET'])
+@MOD_APP.route('/cmd/crawler/crawler/<model>', methods=['GET'])
 def crawl_status(model):
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    """Get the crawl status"""
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
-        r = requests.get('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods',
-                         headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
-        return jsonify(r.json())
-    else:
-        qcmd = ["docker", "container", "ls", "--filter", "name=" + model]
-        o = subprocess.check_output(qcmd)
+        if file.mode == 'r':
+            token = file.read()
+        response = requests.get('https://kubernetes.default.svc.cluster.local/'
+                                'api/v1/namespaces/default/pods',
+                                headers={"content-type": "application/json",
+                                         "Authorization": "Bearer " + token}, verify=False)
+        return jsonify(response.json())
 
-        if model in o.decode("utf-8"):
-            return jsonify({"running": "true"})
-        else:
-            return jsonify({"running": "false"})
+    qcmd = ["docker", "container", "ls", "--filter", "name=" + model]
+    output = subprocess.check_output(qcmd)
+
+    if model in output.decode("utf-8"):
+        return jsonify({"running": "true"})
+    return jsonify({"running": "false"})
 
 
-@mod_app.route('/cmd/crawler/int/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/crawler/int/<model>', methods=['POST'])
 def kill_crawl_gracefully(model):
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    """Graceful Crawl Kill"""
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
+        if file.mode == 'r':
+            token = file.read()
 
         requests.delete(
-            'https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/' + model + "crawl",
-            headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
+            'https://kubernetes.default.svc.cluster.local/api/v1/namespaces/'
+            'default/pods/' + model + "crawl",
+            headers={"content-type": "application/json",
+                     "Authorization": "Bearer " + token}, verify=False)
 
         return "crawl killed"
-    else:
-        qcmd = ["docker", "stop", model + "crawl"]
-        subprocess.call(qcmd)
-        return "crawl killed"
+
+    qcmd = ["docker", "stop", model + "crawl"]
+    subprocess.call(qcmd)
+    return "crawl killed"
 
 
-@mod_app.route('/cmd/crawler/kill/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/crawler/kill/<model>', methods=['POST'])
 def force_kill_crawl(model):
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    """Force kill the crawl"""
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
+        if file.mode == 'r':
+            token = file.read()
 
         requests.delete(
-            'https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/' + model + "crawl",
-            headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
+            'https://kubernetes.default.svc.cluster.local/api/'
+            'v1/namespaces/default/pods/' + model + "crawl",
+            headers={"content-type": "application/json",
+                     "Authorization": "Bearer " + token}, verify=False)
 
         return "crawl killed"
-    else:
-        qcmd = ["docker", "stop", model + "crawl"]
-        subprocess.call(qcmd)
-        return "crawl killed"
+
+    qcmd = ["docker", "stop", model + "crawl"]
+    subprocess.call(qcmd)
+    return "crawl killed"
 
 
-@mod_app.route('/cmd/seed/upload/<model>', methods=['POST'])
+@MOD_APP.route('/cmd/seed/upload/<model>', methods=['POST'])
 def upload_seed(model):
-    print request.get_data()
+    """Upload the Seeds"""
+    print(request.get_data())
     update_seed_urls(model, request.get_data().splitlines())
     seeds = request.get_data().splitlines()
     urls = ",".join(seeds)
-    cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb", "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id",
+    cmd = ["/data/sparkler/bin/sparkler.sh", "inject", "-cdb",
+           "http://sce-solr:8983/solr/crawldb", "-su", urls, "-id",
            model]
-    if k8s.lower() == "true":
-        f = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
+    if K8S.lower() == "true":
+        file = open("/var/run/secrets/kubernetes.io/serviceaccount/token", "r")
         token = ""
-        if f.mode == 'r':
-            token = f.read()
-        requests.delete('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods/' + model + "seed",
-                        headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
-        json = {"kind": "Pod", "apiVersion": "v1",
-                "metadata": {"name": model + "seed", "labels": {"run": model + "seed"}}, "spec": {
-                "containers": [
-                    {"name": model + "seed",
-                     "image": "registry.gitlab.com/sparkler-crawl-environment/sparkler/sparkler:memex-dd",
-                     "command": cmd,
-                     "resources": {}}], "restartPolicy": "Never", "dnsPolicy": "ClusterFirst"}, "status": {}}
-        requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods', json=json,
-                      headers={"content-type": "application/json", "Authorization": "Bearer " + token}, verify=False)
-        return "seed urls uploaded"
-    else:
-        pcmd = ["docker", "rm", model + "seed"]
-        qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "seed",
-                "uscdatascience/sparkler:latest"] + cmd
-        subprocess.call(pcmd)
-        subprocess.Popen(qcmd)
+        if file.mode == 'r':
+            token = file.read()
+        requests.delete('https://kubernetes.default.svc.cluster.local/api/'
+                        'v1/namespaces/default/pods/' + model + "seed",
+                        headers={"content-type": "application/json",
+                                 "Authorization": "Bearer " + token}, verify=False)
+        json_template = {"kind": "Pod", "apiVersion": "v1",
+                         "metadata": {"name": model + "seed",
+                                      "labels": {"run": model + "seed"}}, "spec": {
+                                          "containers": [
+                                              {"name": model + "seed",
+                                               "image": "registry.gitlab.com/"
+                                                        "sparkler-crawl-environment/"
+                                                        "sparkler/sparkler:memex-dd",
+                                               "command": cmd,
+                                               "resources": {}}], "restartPolicy": "Never",
+                                          "dnsPolicy": "ClusterFirst"}, "status": {}}
+        requests.post('https://kubernetes.default.svc.cluster.local/api/v1/namespaces/default/pods'
+                      , json=json_template,
+                      headers={"content-type": "application/json",
+                               "Authorization": "Bearer " + token}, verify=False)
         return "seed urls uploaded"
 
+    pcmd = ["docker", "rm", model + "seed"]
+    qcmd = ["docker", "run", "--network", "compose_default", "--name", model + "seed",
+            "uscdatascience/sparkler:latest"] + cmd
+    subprocess.call(pcmd)
+    subprocess.Popen(qcmd)
+    return "seed urls uploaded"
 
-@mod_app.route('/cmd/seed/fetch/<model>', methods=['GET'])
+
+@MOD_APP.route('/cmd/seed/fetch/<model>', methods=['GET'])
 def feeds(model):
-    s = fetch_seeds(model)
-    if s is None:
+    """Fetch Seeds"""
+    seeds = fetch_seeds(model)
+    if seeds is None:
         return ""
-    else:
-        return json.dumps(s)
+
+    return json.dumps(seeds)
