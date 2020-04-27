@@ -16,10 +16,10 @@ API = Namespace('search', description='Query Duck Duck Go for results')
 @API.param('query', 'Query string to search')
 class Search(Resource):
     """ Search a resource """
+    @classmethod
     @API.doc('search')
     @cors.crossdomain(origin='*')
-    @staticmethod
-    def get(model, query):
+    def get(cls, model, query):
         """
         Search Duck Duck Go
         :param model:
@@ -41,10 +41,10 @@ class Search(Resource):
 @API.param('page', 'Results Page')
 class SearchPaginated(Resource):
     """Execute a paginated search"""
+    @classmethod
     @API.doc('searchpaginated')
     @cors.crossdomain(origin='*')
-    @staticmethod
-    def get(model, query, page):
+    def get(cls, model, query, page):
         """
         Search Duck Duck Go
         :param model:

@@ -1,2 +1,2 @@
 # polar-domain-discovery
-Domain Discovery on Polar Domain
+Domain Discovery on Any Domain

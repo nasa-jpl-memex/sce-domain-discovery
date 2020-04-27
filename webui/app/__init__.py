@@ -19,7 +19,6 @@ logging.basicConfig(level=logging.DEBUG)
 APP.config.from_object('config')
 
 
-
 # Register blueprint(s)
 APP.register_blueprint(app_module)
 

@@ -6,6 +6,7 @@ crawled pages.
 import json
 import os
 import pickle
+
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.externals import joblib
 from sklearn.ensemble import RandomForestClassifier
@@ -218,6 +219,6 @@ def check_model(model_name):
         return str(-1)
 
     dictionary = get_metrics(model)
-    json_dictionary = json.dumps(dictionary)
+    dictionary = {int(k):int(v) for k, v in dictionary.items()}
 
-    return json_dictionary
+    return flask.jsonify(dictionary)
