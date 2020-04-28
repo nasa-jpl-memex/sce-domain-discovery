@@ -77,7 +77,7 @@ def parse_details(model, fetched_data):
     details['url'] = fetched_data[0]
     details['html'] = fetched_data[1]
     details['title'] = fetched_data[2]
-    details['label'] = predict(model, fetched_data[3])
+    details['label'] = int(predict(model, fetched_data[3]))
 
     imag = None
     try:

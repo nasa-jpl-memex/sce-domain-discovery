@@ -20,6 +20,7 @@ CORS(MOD_APP)
 
 K8S = os.getenv('RUNNING_KUBERNETES', 'true')
 
+SOLR_URL = os.getenv('SOLR_URL', 'http://sce-solr:8983')
 
 # Define Controller(s)
 @MOD_APP.route('/')
@@ -168,8 +169,8 @@ def start_crawl(model):
 
     cmd = ['bash', '-c', "echo \'" + yaml.safe_dump(
         content) + "\' > /data/sparkler/conf/sparkler-default.yaml && "
-                   '/data/sparkler/bin/sparkler.sh crawl -cdb http://sce-solr:8983/solr/crawldb '
-                   '-id ' + model + ' ' + cmd_params]
+                   '/data/sparkler/bin/sparkler.sh crawl -cdb '+SOLR_URL+'/solr/crawldb '
+           '-id ' + model + ' ' + cmd_params]
     print(cmd)
     if K8S.lower() == 'true':
         file = open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r')
@@ -329,9 +330,9 @@ def upload_seed(model):
     for seed in seeds:
         urls.append(seed.decode('utf-8'))
 
-    joined_urls = ','.join(urls)
+    joined_urls = ' -su '.join(urls)
     cmd = ['/data/sparkler/bin/sparkler.sh', 'inject', '-cdb',
-           'http://sce-solr:8983/solr/crawldb', '-su', joined_urls, '-id',
+           SOLR_URL+'/solr/crawldb', '-su', joined_urls, '-id',
            model]
     if K8S.lower() == 'true':
         file = open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r')
