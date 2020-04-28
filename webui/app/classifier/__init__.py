@@ -17,6 +17,8 @@ from flask import request, flash, current_app as app
 
 from app.models.model import set_sparkler_defaults, get_connection
 
+STORAGE_LOCATION = os.getenv('STORAGE_LOCATION', '')
+
 def load_vocab():
     """Load Vocabulary"""
     if os.path.exists('keywords.txt'):
@@ -106,13 +108,13 @@ def update_model(model_name, annotations):
     model['labeled'] = labeled.tolist()
     encoded_model = {'countvectorizer': count_vect, 'tfidftransformer': tfidftransformer,
                      'clf': clf}
-    with open('/models/' + model['name'] + '.pickle', 'wb') as handle:
+    with open(STORAGE_LOCATION+'/models/' + model['name'] + '.pickle', 'wb') as handle:
         pickle.dump(encoded_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
     model.save()
     #predicted = clf.predict(features)
     #accuracy = (labeled == predicted).sum() / float(len(labeled))
 
-    return json.dumps(get_metrics(model))
+    return json.dumps(whack_a_mole_model(get_metrics(model)))
 
 
 def get_metrics(model):
@@ -137,8 +139,8 @@ def predict(model_name, txt):
     model = get_connection()[model_name]
     encoded_model = {}
 
-    if os.path.isfile('/models/' + model['name'] + '.pickle'):
-        with open('/models/' + model['name'] + '.pickle', 'rb') as handle:
+    if os.path.isfile(STORAGE_LOCATION+'/models/' + model['name'] + '.pickle'):
+        with open(STORAGE_LOCATION+'/models/' + model['name'] + '.pickle', 'rb') as handle:
             encoded_model = pickle.load(handle)
 
     # if 'countvectorizer' in encoded_model:
@@ -194,6 +196,7 @@ def import_model(model_name):
     setattr(flask.current_app, 'model', model)
 
     dictionary = get_metrics(model)
+    dictionary = whack_a_mole_model(dictionary)
     json_dictionary = json.dumps(dictionary)
 
     return json_dictionary
@@ -205,7 +208,8 @@ def export_model(model_name):
     :param model_name:
     :return:
     """
-    return flask.send_from_directory(directory='/models/', filename=model_name + '.pickle')
+    return flask.send_from_directory(directory=STORAGE_LOCATION+'/models/',
+                                     filename=model_name + '.pickle')
 
 
 def check_model(model_name):
@@ -219,6 +223,23 @@ def check_model(model_name):
         return str(-1)
 
     dictionary = get_metrics(model)
-    dictionary = {int(k):int(v) for k, v in dictionary.items()}
+
+    dictionary = whack_a_mole_model(dictionary)
+
 
     return flask.jsonify(dictionary)
+
+
+def whack_a_mole_model(dictionary):
+    """
+    Too lazy to do it properly, but we need to replace numpy types in dicts.
+    :param dictionary:
+    :return:
+    """
+    if dictionary is not None:
+        try:
+            dictionary = {int(k):int(v) for k, v in dictionary.items()}
+        except TypeError:
+            dictionary = {str(k):int(v) for k, v in dictionary.items()}
+
+    return dictionary

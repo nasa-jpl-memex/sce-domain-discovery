@@ -62,8 +62,8 @@ def build_model(model):
     """
     annotations = []
     data = request.get_json()
-    for _, value in data.iteritems():
-        annotations.append(int(value))
+    for key in data:
+        annotations.append(int(data[key]))
     # for item in data.split('&'):
     #    annotations.append(int(item.split('=')[1]))
 
@@ -325,9 +325,13 @@ def upload_seed(model):
     print(request.get_data())
     update_seed_urls(model, request.get_data().splitlines())
     seeds = request.get_data().splitlines()
-    urls = ','.join(seeds)
+    urls = []
+    for seed in seeds:
+        urls.append(seed.decode('utf-8'))
+
+    joined_urls = ','.join(urls)
     cmd = ['/data/sparkler/bin/sparkler.sh', 'inject', '-cdb',
-           'http://sce-solr:8983/solr/crawldb', '-su', urls, '-id',
+           'http://sce-solr:8983/solr/crawldb', '-su', joined_urls, '-id',
            model]
     if K8S.lower() == 'true':
         file = open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r')

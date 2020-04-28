@@ -2,14 +2,18 @@
 Execute various query and crawl operations.
 """
 import base64
-import traceback
 import logging
 import urllib
+import os
+import uuid
 import requests
+
 
 from bs4 import BeautifulSoup
 from flask import current_app as app
 from pyArango.theExceptions import DocumentNotFoundError
+
+
 from app.classifier import predict
 
 from app.models.model import get_connection
@@ -20,6 +24,8 @@ logging.basicConfig(level=logging.DEBUG)
 URL_DETAILS = []
 URL_TEXT = []
 
+SCEHOST = os.getenv('SCE_HOST', 'http://sce-splash:8050')
+STORAGE_LOCATION = os.getenv('STORAGE_LOCATION', '')
 
 def get_url_window(query, top_n, page):
     """
@@ -35,7 +41,7 @@ def get_url_window(query, top_n, page):
     output = ''
     app.logger.info('Processing get url request ' + query)
     query = urllib.parse.quote(query)
-    search_url = 'http://sce-splash:8050/render.html?url=https%3A%2F%2Fduckduckgo.com' \
+    search_url = SCEHOST + '/render.html?url=https%3A%2F%2Fduckduckgo.com' \
                  '%2F%3Fq%3D' + query + '%26kl%3Dwt-wt%26ks%3Dl%26k1%3D-1%26kp%3D-2%2' \
                  '6ka%3Da%26kaq%3D-1%26k18%3D-1%26kax%3D-1%26kaj%3Du%26kac%3D-1%26kn%' \
                  '3D1%26kt%3Da%26kao%3D-1%26kap%3D-1%26kak%3D-1%26kk%3D-1%26ko%3Ds%26' \
@@ -72,19 +78,20 @@ def parse_details(model, fetched_data):
     details['html'] = fetched_data[1]
     details['title'] = fetched_data[2]
     details['label'] = predict(model, fetched_data[3])
-    print('http://localhost:8050/render.png?url='
-          + fetched_data[0] +
-          '&wait=5&width=320&height=240')
 
-    imag = requests.get('http://sce-splash:8050/render.png?url='
-                        + fetched_data[0] +
-                        '&wait=5&width=320&height=240')
+    imag = None
+    try:
+        imag = requests.get(SCEHOST+'/render.png?url='
+                            + fetched_data[0] +
+                            '&wait=5&width=320&height=240')
+    except requests.exceptions.ConnectionError:
+        print('Connection error to SCE')
 
-    if imag.status_code == 200:
-        uuid = str(uuid.uuid4())
-        with open('/images/' + uuid + '.png', 'wb') as file:
+    if imag is not None and imag.status_code == 200:
+        generatedid = str(uuid.uuid4())
+        with open(STORAGE_LOCATION+'/images/' + generatedid + '.png', 'wb') as file:
             file.write(imag.content)
-        details['image'] = '/images/' + uuid + '.png'
+        details['image'] = STORAGE_LOCATION+'/images/' + generatedid + '.png'
 
         with open(details['image'], 'rb') as image_file:
             encoded_string = base64.b64encode(image_file.read())

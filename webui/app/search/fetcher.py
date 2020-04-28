@@ -27,7 +27,8 @@ class Fetcher:
         chunks = (phrase.strip() for line in lines for phrase in line.split('  '))
         text = '\n'.join(chunk for chunk in chunks if chunk)
         text = text.replace('\n', ' ')
-        return text.encode('utf-8')
+        #return text.encode('utf-8')
+        return text
 
     @staticmethod
     def clean_string(text):
@@ -37,8 +38,19 @@ class Fetcher:
         :return:
         """
         try:
-            lines = (line.strip() for line in text.splitlines())
-            chunks = (phrase.strip() for line in lines for phrase in line.split('  '))
+            #lines = (line.strip() for line in text.splitlines())
+            #chunks = (phrase.strip() for line in lines for phrase in line.split('  '))
+            lines = []
+            chunks = []
+            for line in text.splitlines():
+                line = line.strip()
+                lines.append(line)
+
+            for line in lines:
+                for phrase in line.split(' '):
+                    phrase = phrase.strip()
+                    chunks.append(phrase)
+
             text = '\n'.join(chunk for chunk in chunks if chunk)
             text = text.replace('\n', ' ')
             return str(text)
@@ -54,16 +66,20 @@ class Fetcher:
         """
         # res = urlopen(url)
         # data = res.read()
-        data = requests.get(url).content
+        try:
+            data = requests.get(url).content
+        except requests.exceptions.ConnectionError:
+            print('Connection Failed')
+
         print('Fetched %s from %s' % (len(data), url))
         # if res.headers.getparam('charset').lower() != 'utf-8':
         #    data = data.encode('utf-8')
         soup = BeautifulSoup(data, 'html.parser')
         print('Parsed %s from %s' % (len(data), url))
         clean_url = Fetcher.clean_string(url)
-        clean_data = Fetcher.clean_string(data)
+        clean_data = Fetcher.clean_string(soup.prettify())
 
-        title = soup.title.string.encode('utf-8')
+        title = soup.title.string
         clean_text = Fetcher.cleantext(soup)
         return ([clean_url, clean_data, title, clean_text])
 
