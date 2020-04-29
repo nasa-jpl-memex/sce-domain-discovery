@@ -79,7 +79,10 @@ class Fetcher:
         clean_url = Fetcher.clean_string(url)
         clean_data = Fetcher.clean_string(soup.prettify())
 
-        title = soup.title.string
+        title = ''
+        if soup.title is not None:
+            title = soup.title.string
+
         clean_text = Fetcher.cleantext(soup)
         return ([clean_url, clean_data, title, clean_text])
 
