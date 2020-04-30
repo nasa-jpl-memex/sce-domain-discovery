@@ -132,7 +132,7 @@ def set_sparkler_config(model):
     """
     content = request.json
     set_sparkler_options(model, content)
-    return 'config updated'
+    return content
 
 
 @MOD_APP.route('/cmd/crawler/settings/<model>', methods=['GET'])
@@ -324,7 +324,7 @@ def upload_seed(model):
     :return:
     """
     print(request.get_data())
-    update_seed_urls(model, request.get_data().splitlines())
+    new_full_list = update_seed_urls(model, request.get_data().splitlines())
     seeds = request.get_data().splitlines()
     urls = []
     for seed in seeds:
@@ -365,7 +365,7 @@ def upload_seed(model):
             'uscdatascience/sparkler:latest'] + cmd
     subprocess.call(pcmd)
     subprocess.Popen(qcmd)
-    return 'seed urls uploaded'
+    return json.dumps(new_full_list)
 
 
 @MOD_APP.route('/cmd/seed/fetch/<model>', methods=['GET'])
