@@ -91,6 +91,7 @@ def update_model(model_name, annotations):
         labeled = np.append(labeled, prev_labeled, axis=0)
         url_details = np.append(url_details, prev_url_details, axis=0)
 
+
     features = count_vect.fit_transform(url_text)
     features = tfidftransformer.fit_transform(features).toarray().astype(np.float64)
 

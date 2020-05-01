@@ -2,6 +2,7 @@
 Search Endpoints for the REST API
 """
 import json
+import os
 
 from flask_restplus import Namespace, Resource, cors
 from flask import current_app as a
@@ -9,7 +10,9 @@ from pyArango.theExceptions import DocumentNotFoundError
 from werkzeug.exceptions import BadRequest
 from app import search
 
-API = Namespace('search', description='Query Duck Duck Go for results')
+PFX = os.getenv('API_PFX', '/')
+
+API = Namespace('search', description='Query Duck Duck Go for results', path=PFX+'/search')
 
 
 @API.route('/<model>/<query>')

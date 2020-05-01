@@ -2,11 +2,16 @@
 Classify Endpoints for the REST API.
 """
 import json
+import os
+
 from flask_restplus import Namespace, Resource
 from flask import request
 from app import classifier
 
-API = Namespace('classify', description='Interact with the ML model')
+PFX = os.getenv('API_PFX', '/')
+
+
+API = Namespace('classify', description='Interact with the ML model', path=PFX+'/classify')
 
 
 @API.route('/predict', methods=['GET', 'POST'])
