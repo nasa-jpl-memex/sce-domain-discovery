@@ -8,7 +8,7 @@ from flask_restplus import Namespace, Resource
 from flask import request
 from app import classifier
 
-PFX = os.getenv('API_PFX', '/')
+PFX = os.getenv('API_PFX', '')
 
 
 API = Namespace('classify', description='Interact with the ML model', path=PFX+'/classify')

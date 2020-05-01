@@ -10,7 +10,7 @@ from pyArango.theExceptions import DocumentNotFoundError
 from werkzeug.exceptions import BadRequest
 from app import search
 
-PFX = os.getenv('API_PFX', '/')
+PFX = os.getenv('API_PFX', '')
 
 API = Namespace('search', description='Query Duck Duck Go for results', path=PFX+'/search')
 
