@@ -19,7 +19,7 @@ PFX = os.getenv('API_PFX', '/')
 MOD_APP = Blueprint('application', __name__, url_prefix=PFX)
 CORS(MOD_APP)
 
-K8S = os.getenv('RUNNING_KUBERNETES', 'true')
+K8S = os.getenv('RUNNING_KUBERNETES', 'false')
 
 SOLR_URL = os.getenv('SOLR_URL', 'http://sce-solr:8983')
 

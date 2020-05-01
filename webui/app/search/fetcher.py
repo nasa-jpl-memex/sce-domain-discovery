@@ -66,25 +66,30 @@ class Fetcher:
         """
         # res = urlopen(url)
         # data = res.read()
+        data = None
+
         try:
             data = requests.get(url).content
         except requests.exceptions.ConnectionError:
             print('Connection Failed')
 
-        print('Fetched %s from %s' % (len(data), url))
-        # if res.headers.getparam('charset').lower() != 'utf-8':
-        #    data = data.encode('utf-8')
-        soup = BeautifulSoup(data, 'html.parser')
-        print('Parsed %s from %s' % (len(data), url))
-        clean_url = Fetcher.clean_string(url)
-        clean_data = Fetcher.clean_string(soup.prettify())
+        if data is not None:
+            print('Fetched %s from %s' % (len(data), url))
+            # if res.headers.getparam('charset').lower() != 'utf-8':
+            #    data = data.encode('utf-8')
+            soup = BeautifulSoup(data, 'html.parser')
+            print('Parsed %s from %s' % (len(data), url))
+            clean_url = Fetcher.clean_string(url)
+            clean_data = Fetcher.clean_string(soup.prettify())
 
-        title = ''
-        if soup.title is not None:
-            title = soup.title.string
+            title = ''
+            if soup.title is not None:
+                title = soup.title.string
 
-        clean_text = Fetcher.cleantext(soup)
-        return ([clean_url, clean_data, title, clean_text])
+            clean_text = Fetcher.cleantext(soup)
+            return ([clean_url, clean_data, title, clean_text])
+
+        return None
 
     @staticmethod
     def fetch_multiple(urls, top_n):
