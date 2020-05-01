@@ -8,7 +8,7 @@ from pyArango.connection import Connection
 from pyArango.theExceptions import DocumentNotFoundError
 from flask import current_app as app
 
-AURL = os.getenv('ARANGO_URL', 'https://single-server-int:8529')
+AURL = os.getenv('ARANGO_URL', 'http://single-server-int:8529')
 CONN = Connection(AURL, 'root', '', verify=False)
 
 def get_database():

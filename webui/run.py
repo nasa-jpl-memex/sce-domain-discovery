@@ -2,4 +2,5 @@
 from app import APP
 
 # Run Server
-APP.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
+if __name__ == '__main__':
+    APP.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
