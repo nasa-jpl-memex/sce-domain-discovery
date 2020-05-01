@@ -30,8 +30,11 @@ class Predict(Resource):
         args = request.args
         if len(args) != 0:
             content = args['content']
-        result = classifier.predict(model, content)
-        return classes[result]
+        if content:
+            result = classifier.predict(model, content)
+            return classes[result]
+        print('NO CONTENT FOUND')
+        return classes[0]
 
     @API.doc('predict')
     @staticmethod
