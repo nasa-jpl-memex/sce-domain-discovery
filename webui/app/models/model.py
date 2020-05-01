@@ -60,7 +60,7 @@ def set_sparkler_defaults(model):
     activeplugins = ['urlfilter-regex', 'urlfilter-samehost', 'scorer-dd-svn']
     plugins = {'urlfilter.regex': {'urlfilter.regex.file': 'regex-urlfilter.txt'},
                'fetcher.jbrowser': {'socket.timeout': 3000, 'connect.timeout': 3000},
-               'scorer.dd.svn': {'scorer.dd.svn.url': 'http://sce-api:5000/classify/predict',
+               'scorer.dd.svn': {'scorer.dd.svn.url': 'http://sce-ui/explorer-api/classify/predict',
                                  'scorer.dd.svn.fallback': 0, 'scorer.dd.svn.key': 'svn_score'}}
 
     content = {'crawldb.uri': 'http://sce-solr:8983/solr/crawldb',
