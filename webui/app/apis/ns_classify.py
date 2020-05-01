@@ -39,7 +39,7 @@ class Predict(Resource):
             result = classifier.predict(model, content)
             return classes[result]
         print('NO CONTENT FOUND')
-        return classes[0]
+        return classes[-1]
 
     @API.doc('predict')
     @staticmethod
@@ -59,6 +59,9 @@ class Predict(Resource):
         loaded_data = json.loads(data.decode('utf-8', 'ignore'))
         if len(data) != 0:
             content = loaded_data['score'][0]['content']
+            if content is None:
+                return classes[-1]
+
             model = loaded_data['score'][0]['model']
             result = classifier.predict(model, content)
         return classes[result]
