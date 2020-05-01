@@ -15,7 +15,8 @@ from app.models.model import get_sparkler_options, set_sparkler_options, \
     update_seed_urls, fetch_seeds
 
 
-MOD_APP = Blueprint('application', __name__, url_prefix='/explorer-api')
+PFX = os.getenv('API_PFX', '/')
+MOD_APP = Blueprint('application', __name__, url_prefix=PFX)
 CORS(MOD_APP)
 
 K8S = os.getenv('RUNNING_KUBERNETES', 'true')
