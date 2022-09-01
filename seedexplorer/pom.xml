@@ -13,7 +13,7 @@
     <properties>
         <!-- Project Dependencies -->
         <corenlp.version>3.6.0</corenlp.version>
-        <jsoup.version>1.8.3</jsoup.version>
+        <jsoup.version>1.15.3</jsoup.version>
         <boilerpipe.version>1.1.0</boilerpipe.version>
         <selenium.version>2.44.0</selenium.version>
         <guava.version>21.0</guava.version>
